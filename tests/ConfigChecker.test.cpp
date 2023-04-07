@@ -95,3 +95,33 @@ TEST_CASE("validateHttpMethod", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validateHttpMethod("") == false);
 	REQUIRE(ConfigChecker::validateHttpMethod("notAMethod") == false);
 }
+
+TEST_CASE("validateErrorCode", "[ConfigChecker]")
+{
+	// Valid testcases
+	REQUIRE(ConfigChecker::validateErrorCode("300") == true);
+	REQUIRE(ConfigChecker::validateErrorCode("599") == true);
+	REQUIRE(ConfigChecker::validateErrorCode("404") == true);
+
+	// Invalid testcases
+	REQUIRE(ConfigChecker::validateErrorCode("") == false);
+	REQUIRE(ConfigChecker::validateErrorCode("600") == false);
+	REQUIRE(ConfigChecker::validateErrorCode("200") == false);
+	REQUIRE(ConfigChecker::validateErrorCode("-1") == false);
+	REQUIRE(ConfigChecker::validateErrorCode("notAnErrorCode") == false);
+}
+
+TEST_CASE("validateErrorPages", "[ConfigChecker]")
+{
+	// Valid testcases
+	REQUIRE(ConfigChecker::validateErrorPages("404 /404.html") == true);
+	REQUIRE(ConfigChecker::validateErrorPages("404 403 /notfound.php") == true);
+	REQUIRE(ConfigChecker::validateErrorPages("404 403 400 401 /notfound.php") == true);
+
+	// Invalid testcases
+	REQUIRE(ConfigChecker::validateErrorPages("") == false);
+	REQUIRE(ConfigChecker::validateErrorPages("notAStatusCode /404.html") == false);
+	REQUIRE(ConfigChecker::validateErrorPages("404 notAStatusCode /404.html") == false);
+	REQUIRE(ConfigChecker::validateErrorPages("/404.html 404") == false);
+	REQUIRE(ConfigChecker::validateErrorPages("404 403 /notfound.php /anotherfile.php") == false);
+}

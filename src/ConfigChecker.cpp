@@ -1,4 +1,8 @@
 #include "ConfigChecker.hpp"
+#include <cstdio>
+#include <string>
+#include <sys/_types/_size_t.h>
+#include <vector>
 
 bool ConfigChecker::validateIp(const std::string &ipAddress)
 {
@@ -105,4 +109,51 @@ bool ConfigChecker::validateHttpMethod(const std::string &method)
 	const std::string ALLOWED_METHODS[] = {"GET", "POST", "DELETE"};
 
 	return std::find(std::begin(ALLOWED_METHODS), std::end(ALLOWED_METHODS), method) != std::end(ALLOWED_METHODS);
+}
+
+bool ConfigChecker::validateErrorCode(const std::string &code)
+{
+	const char *DIGITS = "0123456789";
+
+	if (code.empty() or code.size() > 3)
+	{
+		return false;
+	}
+	if (std::strspn(code.c_str(), DIGITS) != code.size())
+	{
+		return false;
+	}
+	int errorCode = std::stoi(code);
+	return errorCode >= 300 and errorCode <= 599;
+}
+
+bool ConfigChecker::validateErrorPages(const std::string &errorPagesParam)
+{
+	std::string errorPages = errorPagesParam;
+	if (errorPages.empty())
+	{
+		return false;
+	}
+	std::replace(errorPages.begin(), errorPages.end(), '\t', ' ');
+
+	std::istringstream inputString(errorPages);
+	std::string token;
+	std::vector<std::string> tokens;
+
+	while (std::getline(inputString, token, ' '))
+	{
+		if (token.empty())
+		{
+			continue;
+		}
+		tokens.push_back(token);
+	}
+	for (size_t i = 0; i < tokens.size() - 1; i++)
+	{
+		if (not validateErrorCode(tokens[i]))
+		{
+			return false;
+		}
+	}
+	return true;
 }
