@@ -37,3 +37,19 @@ TEST_CASE("validatePort", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validatePortNumber("-1") == false);
 	REQUIRE(ConfigChecker::validatePortNumber(" 80") == false);
 }
+
+TEST_CASE("validateHostname", "[ConfigChecker]")
+{
+	// Valid testcases
+	REQUIRE(ConfigChecker::validateHostname("localhost") == true);
+	REQUIRE(ConfigChecker::validateHostname("www.google.com") == true);
+
+	// Invalid testcases
+	REQUIRE(ConfigChecker::validateHostname("") == false);
+	REQUIRE(ConfigChecker::validateHostname(std::string(255, 'A')) == false);
+	REQUIRE(ConfigChecker::validateHostname("-thisShouldBeInvalid") == false);
+	REQUIRE(ConfigChecker::validateHostname("thisAlsoShouldBeInvalid-") == false);
+	REQUIRE(ConfigChecker::validateHostname("www.google.com.") == false);
+	REQUIRE(ConfigChecker::validateHostname("ho$tn@me-with-inv@lid-ch@r@cter$") == false);
+	REQUIRE(ConfigChecker::validateHostname(std::string(64, 'A').append(".com")) == false);
+}

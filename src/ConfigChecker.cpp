@@ -45,3 +45,34 @@ bool ConfigChecker::validatePortNumber(const std::string &port)
 
 	return portNumber > 0 and portNumber <= MAX_PORT;
 }
+
+bool ConfigChecker::validateHostname(const std::string &hostname)
+{
+	const int HOSTNAME_MAX_LENGTH = 255;
+	const int SEGMENT_MAX_LENGTH = 63;
+
+	if (hostname.empty() or hostname.length() > HOSTNAME_MAX_LENGTH)
+	{
+		return false;
+	}
+	if (std::strspn(hostname.c_str(), "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.") != hostname.size())
+	{
+		return false;
+	}
+	if (hostname.front() == '-' or hostname.front() == '.' or hostname.back() == '-' or hostname.back() == '.')
+	{
+		return false;
+	}
+
+	std::stringstream stream(hostname);
+	std::string segment;
+
+	while (std::getline(stream, segment, '.'))
+	{
+		if (segment.length() > SEGMENT_MAX_LENGTH)
+		{
+			return false;
+		}
+	}
+	return true;
+}
