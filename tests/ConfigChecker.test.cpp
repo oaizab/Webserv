@@ -53,3 +53,30 @@ TEST_CASE("validateHostname", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validateHostname("ho$tn@me-with-inv@lid-ch@r@cter$") == false);
 	REQUIRE(ConfigChecker::validateHostname(std::string(64, 'A').append(".com")) == false);
 }
+
+TEST_CASE("validateSize", "[ConfigChecker]")
+{
+	// Valid testcases
+	REQUIRE(ConfigChecker::validateSize("0") == true);
+	REQUIRE(ConfigChecker::validateSize("1") == true);
+	REQUIRE(ConfigChecker::validateSize("1337") == true);
+	REQUIRE(ConfigChecker::validateSize("13371337") == true);
+	REQUIRE(ConfigChecker::validateSize("42k") == true);
+	REQUIRE(ConfigChecker::validateSize("42K") == true);
+	REQUIRE(ConfigChecker::validateSize("42m") == true);
+	REQUIRE(ConfigChecker::validateSize("42M") == true);
+	REQUIRE(ConfigChecker::validateSize("42g") == true);
+	REQUIRE(ConfigChecker::validateSize("42G") == true);
+	REQUIRE(ConfigChecker::validateSize("0k") == true);
+	REQUIRE(ConfigChecker::validateSize("0K") == true);
+	REQUIRE(ConfigChecker::validateSize("0m") == true);
+	REQUIRE(ConfigChecker::validateSize("0M") == true);
+	REQUIRE(ConfigChecker::validateSize("0g") == true);
+	REQUIRE(ConfigChecker::validateSize("0G") == true);
+
+	// Invalid testcases
+	REQUIRE(ConfigChecker::validateSize("") == false);
+	REQUIRE(ConfigChecker::validateSize("notASize") == false);
+	REQUIRE(ConfigChecker::validateSize("1k1") == false);
+	REQUIRE(ConfigChecker::validateSize("-1") == false);
+}

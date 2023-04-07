@@ -76,3 +76,26 @@ bool ConfigChecker::validateHostname(const std::string &hostname)
 	}
 	return true;
 }
+
+bool ConfigChecker::validateSize(const std::string &sizeStr)
+{
+	const std::string SIZE_SUFFIXES_STR = "kmgKMG";
+	const std::set<char> SIZE_SUFFIXES(SIZE_SUFFIXES_STR.begin(), SIZE_SUFFIXES_STR.end());
+
+	if (sizeStr.empty())
+	{
+		return false;
+	}
+
+	size_t spanLength = std::strspn(sizeStr.c_str(), "0123456789");
+
+	if (spanLength < sizeStr.size() - 1)
+	{
+		return false;
+	}
+	if (spanLength == sizeStr.size() - 1 and SIZE_SUFFIXES.find(sizeStr.back()) == SIZE_SUFFIXES.end())
+	{
+		return false;
+	}
+	return true;
+}
