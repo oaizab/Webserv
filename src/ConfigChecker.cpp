@@ -79,8 +79,8 @@ bool ConfigChecker::validateHostname(const std::string &hostname)
 
 bool ConfigChecker::validateSize(const std::string &sizeStr)
 {
-	const std::string SIZE_SUFFIXES_STR = "kmgKMG";
-	const std::set<char> SIZE_SUFFIXES(SIZE_SUFFIXES_STR.begin(), SIZE_SUFFIXES_STR.end());
+	const std::string SIZE_SUFFIXES = "kmgKMG";
+	const std::set<char> SIZE_SUFFIXES_SET(SIZE_SUFFIXES.begin(), SIZE_SUFFIXES.end());
 
 	if (sizeStr.empty())
 	{
@@ -93,7 +93,7 @@ bool ConfigChecker::validateSize(const std::string &sizeStr)
 	{
 		return false;
 	}
-	if (spanLength == sizeStr.size() - 1 and SIZE_SUFFIXES.find(sizeStr.back()) == SIZE_SUFFIXES.end())
+	if (spanLength == sizeStr.size() - 1 and SIZE_SUFFIXES_SET.find(sizeStr.back()) == SIZE_SUFFIXES_SET.end())
 	{
 		return false;
 	}
