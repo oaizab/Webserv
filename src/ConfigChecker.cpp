@@ -27,3 +27,21 @@ bool ConfigChecker::validateIp(const std::string &ipAddress)
 	}
 	return components.size() == 4;
 }
+
+bool ConfigChecker::validatePortNumber(const std::string &port)
+{
+	const uint16_t MAX_PORT = 65535;
+
+	if (port.empty() or port.size() > 5)
+	{
+		return false;
+	}
+	if (std::strspn(port.c_str(), "0123456789") != port.size())
+	{
+		return false;
+	}
+
+	int portNumber = std::stoi(port);
+
+	return portNumber > 0 and portNumber <= MAX_PORT;
+}
