@@ -79,4 +79,7 @@ TEST_CASE("validateSize", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validateSize("notASize") == false);
 	REQUIRE(ConfigChecker::validateSize("1k1") == false);
 	REQUIRE(ConfigChecker::validateSize("-1") == false);
+	REQUIRE(ConfigChecker::validateSize("1.1") == false);
+	REQUIRE(ConfigChecker::validateSize("-1k") == false);
+	REQUIRE(ConfigChecker::validateSize("1kg") == false);
 }
