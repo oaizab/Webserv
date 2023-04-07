@@ -83,3 +83,15 @@ TEST_CASE("validateSize", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validateSize("-1k") == false);
 	REQUIRE(ConfigChecker::validateSize("1kg") == false);
 }
+
+TEST_CASE("validateHttpMethod", "[ConfigChecker]")
+{
+	// Valid testcases
+	REQUIRE(ConfigChecker::validateHttpMethod("GET") == true);
+	REQUIRE(ConfigChecker::validateHttpMethod("POST") == true);
+	REQUIRE(ConfigChecker::validateHttpMethod("DELETE") == true);
+
+	// Invalid testcases
+	REQUIRE(ConfigChecker::validateHttpMethod("") == false);
+	REQUIRE(ConfigChecker::validateHttpMethod("notAMethod") == false);
+}

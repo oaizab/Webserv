@@ -14,4 +14,5 @@ class ConfigChecker
 		static bool validatePortNumber(const std::string &port);
 		static bool validateHostname(const std::string &hostname);
 		static bool validateSize(const std::string &sizeStr);
+		static bool validateHttpMethod(const std::string &method);
 };

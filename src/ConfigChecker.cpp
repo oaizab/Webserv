@@ -99,3 +99,10 @@ bool ConfigChecker::validateSize(const std::string &sizeStr)
 	}
 	return true;
 }
+
+bool ConfigChecker::validateHttpMethod(const std::string &method)
+{
+	const std::string ALLOWED_METHODS[] = {"GET", "POST", "DELETE"};
+
+	return std::find(std::begin(ALLOWED_METHODS), std::end(ALLOWED_METHODS), method) != std::end(ALLOWED_METHODS);
+}
