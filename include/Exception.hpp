@@ -6,19 +6,24 @@
 class ConfigCheckerException : public std::exception
 {
 	public:
-		explicit ConfigCheckerException(const char* message);
-		const char* what() const throw();
+		explicit ConfigCheckerException(const std::string &message);
+
+		~ConfigCheckerException() throw();
+
+		virtual const char* what() const throw();
 
 	private:
-		const char *message;
+		std::string message;
 };
 
 class FileException : public std::exception
 {
 	public:
-		explicit FileException(const char* message);
+		explicit FileException(const std::string &message);
 		const char* what() const throw();
 
+		~FileException() throw();
+
 	private:
-		const char *message;
+		std::string message;
 };
