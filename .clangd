@@ -33,5 +33,6 @@ Diagnostics:
 	  "cppcoreguidelines-special-member-functions",
 	  "readability-function-cognitive-complexity",
 	  "cppcoreguidelines-avoid-magic-numbers",
-	  "readability-magic-numbers"
+	  "readability-magic-numbers",
+	  "llvm-namespace-comment"
     ]

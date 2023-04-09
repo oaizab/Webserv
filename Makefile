@@ -111,13 +111,12 @@ $(OBJ_DIR):
 # ******************************** Test config *********************************
 
 # Please write all test suite names here
-TEST_NAMES := ConfigChecker
+TEST_NAMES := ConfigChecker Utils
 
 # Please write all external dependencies here
 # Example: unitName_DEP := dependency1 dependency2 ...
 # Note: Dependencies are written without any extension
 # Note: This can be omitted if the unit has no external dependencies
-ConfigChecker_DEP := ConfigChecker
 
 # ******************************* Test Targets *********************************
 testall:
