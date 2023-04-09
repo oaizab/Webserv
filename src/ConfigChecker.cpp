@@ -136,17 +136,12 @@ bool ConfigChecker::validateErrorPages(const std::string &errorPagesParam)
 	}
 	std::replace(errorPages.begin(), errorPages.end(), '\t', ' ');
 
-	std::istringstream inputString(errorPages);
-	std::string token;
 	std::vector<std::string> tokens;
 
-	while (std::getline(inputString, token, ' '))
+	tokens = Utils::Split(errorPages, ' ');
+	if (tokens.size() < 2)
 	{
-		if (token.empty())
-		{
-			continue;
-		}
-		tokens.push_back(token);
+		return false;
 	}
 	for (size_t i = 0; i < tokens.size() - 1; i++)
 	{
