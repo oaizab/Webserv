@@ -16,7 +16,7 @@ bool ConfigChecker::validateIp(const std::string &ipAddress)
 		{
 			return false;
 		}
-		if (std::strspn(component.c_str(), "0123456789") != component.size())
+		if (component.find_first_not_of("0123456789") != std::string::npos)
 		{
 			return false;
 		}
@@ -40,7 +40,7 @@ bool ConfigChecker::validatePortNumber(const std::string &port)
 	{
 		return false;
 	}
-	if (std::strspn(port.c_str(), "0123456789") != port.size())
+	if (port.find_first_not_of("0123456789") != std::string::npos)
 	{
 		return false;
 	}
@@ -59,7 +59,7 @@ bool ConfigChecker::validateHostname(const std::string &hostname)
 	{
 		return false;
 	}
-	if (std::strspn(hostname.c_str(), "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.") != hostname.size())
+	if (hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.") != std::string::npos)
 	{
 		return false;
 	}
@@ -91,7 +91,7 @@ bool ConfigChecker::validateSize(const std::string &sizeStr)
 		return false;
 	}
 
-	size_t spanLength = std::strspn(sizeStr.c_str(), "0123456789");
+	size_t spanLength = sizeStr.find_first_not_of("0123456789");
 
 	if (spanLength < sizeStr.size() - 1)
 	{
@@ -119,7 +119,7 @@ bool ConfigChecker::validateErrorCode(const std::string &code)
 	{
 		return false;
 	}
-	if (std::strspn(code.c_str(), DIGITS) != code.size())
+	if (code.find_first_not_of(DIGITS) != std::string::npos)
 	{
 		return false;
 	}
