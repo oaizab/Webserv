@@ -34,5 +34,9 @@ Diagnostics:
 	  "readability-function-cognitive-complexity",
 	  "cppcoreguidelines-avoid-magic-numbers",
 	  "readability-magic-numbers",
-	  "llvm-namespace-comment"
+	  "llvm-namespace-comment",
+	  "cert-err33-c",
+	  "hicpp-use-equals-default",
+	  "modernize-use-equals-default",
+	  "cert-err60-cpp"
     ]

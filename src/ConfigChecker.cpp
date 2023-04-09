@@ -1,8 +1,19 @@
 #include "ConfigChecker.hpp"
+#include "Exception.hpp"
+#include "Utils.hpp"
 #include <cstdio>
 #include <string>
 #include <sys/_types/_size_t.h>
 #include <vector>
+
+ConfigChecker::ConfigChecker() : configFilePath("./config/webserv.conf")
+{
+}
+
+ConfigChecker::ConfigChecker(const std::string &configFilePath) : configFilePath(configFilePath)
+{
+	validateConfigFile();
+}
 
 bool ConfigChecker::validateIp(const std::string &ipAddress)
 {
@@ -151,4 +162,166 @@ bool ConfigChecker::validateErrorPages(const std::string &errorPagesParam)
 		}
 	}
 	return true;
+}
+
+void ConfigChecker::validateConfigFile() const
+{
+	std::ifstream fin(configFilePath);
+
+	if (not fin.is_open())
+	{
+		throw FileException("Failed to open config file");
+	}
+
+	std::string line;
+
+	while (std::getline(fin, line))
+	{
+		std::replace(line.begin(), line.end(), '\t', ' ');
+		line = Utils::Trim(line);
+		if (line.empty() or line.front() == '#')
+		{
+			continue;
+		}
+
+		std::vector<std::string> tokens = Utils::Split(line, ' ');
+
+		if (tokens.size() != 2)
+		{
+			throw ConfigCheckerException("Invalid directive at the top level: " + tokens.front());
+		}
+		if (tokens.front() != "server")
+		{
+			throw ConfigCheckerException("Expected 'server' directive at the top level");
+		}
+		if (tokens.back() != "{")
+		{
+			throw ConfigCheckerException("Expected opening curly brace '{' after server directive");
+		}
+		validateServerBlock(fin);
+	}
+}
+
+void ConfigChecker::validateServerBlock(std::ifstream &fin)
+{
+	std::string line;
+	std::vector<std::string> tokens;
+
+	while (std::getline(fin, line))
+	{
+		line = Utils::Trim(line);
+		std::replace(line.begin(), line.end(), '\t', ' ');
+		if (line.empty() or line.front() == '#')
+		{
+			continue;
+		}
+		if (line == "}")
+		{
+			return;
+		}
+
+		tokens = Utils::Split(line, ' ');
+		tokens.front() == "host"                   ? validateHostDirective(tokens)
+		: tokens.front() == "port"                 ? validatePortDirective(tokens)
+		: tokens.front() == "server_name"          ? validateServerNameDirective(tokens)
+		: tokens.front() == "error_pages"          ? validateErrorPagesDirective(tokens, fin)
+		: tokens.front() == "client_max_body_size" ? validateClientMaxBodySizeDirective(tokens)
+		: tokens.front() == "location"             ? validateLocationDirective(tokens, fin)
+		: throw ConfigCheckerException("Invalid directive: " + tokens.front() + " at server block level");
+	}
+	throw ConfigCheckerException("Missing end curly brace '}' at server block level");
+}
+
+void ConfigChecker::validateHostDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("host directive requires at least one argument");
+	}
+	if (not validateHostname(tokens.back()) and not validateIp(tokens.back()))
+	{
+		throw ConfigCheckerException("Invalid host directive");
+	}
+}
+
+void ConfigChecker::validatePortDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("port directive requires at least one argument");
+	}
+	if (not validatePortNumber(tokens.back()))
+	{
+		throw ConfigCheckerException("Invalid port directive");
+	}
+}
+
+void ConfigChecker::validateServerNameDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("server_name directive requires at least one argument");
+	}
+	for (size_t i = 1; i < tokens.size(); i++)
+	{
+		if (not validateHostname(tokens[i]))
+		{
+			throw ConfigCheckerException("Invalid server name" + tokens[i]);
+		}
+	}
+}
+
+void ConfigChecker::validateErrorPagesDirective(const std::vector<std::string> &tokens, std::ifstream &fin)
+{
+	std::string line;
+	bool hasClosingBrace = false;
+
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("Invalid error_pages directive");
+	}
+	if (tokens.back() != "{")
+	{
+		throw ConfigCheckerException("Expected opening curly brace '{' after error_pages directive");
+	}
+	while (std::getline(fin, line))
+	{
+		std::replace(line.begin(), line.end(), '\t', ' ');
+		line = Utils::Trim(line);
+		if (line.empty() or line.front() == '#')
+		{
+			continue;
+		}
+		if (line == "}")
+		{
+			hasClosingBrace = true;
+			break;
+		}
+		if (not validateErrorPages(line))
+		{
+			throw ConfigCheckerException("Invalid error_pages directive");
+		}
+	}
+	if (not hasClosingBrace)
+	{
+		throw ConfigCheckerException("Expected closing curly brace '}' after error_pages directive");
+	}
+}
+
+void ConfigChecker::validateClientMaxBodySizeDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("client_max_body_size directive requires only one argument");
+	}
+	if (not validateSize(tokens.back()))
+	{
+		throw ConfigCheckerException("client_max_body_size: Invalid size");
+	}
+}
+
+void ConfigChecker::validateLocationDirective(const std::vector<std::string> &tokens, std::ifstream &fin)
+{
+	(void) tokens;
+	(void) fin;
 }
