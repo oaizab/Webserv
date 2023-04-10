@@ -66,7 +66,7 @@ TEST_DIR := tests
 TOOL_DIR := tools
 
 # ************************************ Files ***********************************
-NAME := a.out
+NAME := webserv
 # TODO: Make sure to change this before pushing to the intra
 SRCS := $(shell find $(SRC_DIR) -type f -name *.cpp -print)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
@@ -111,12 +111,13 @@ $(OBJ_DIR):
 # ******************************** Test config *********************************
 
 # Please write all test suite names here
-TEST_NAMES :=
+TEST_NAMES := ConfigChecker Utils
 
 # Please write all external dependencies here
 # Example: unitName_DEP := dependency1 dependency2 ...
 # Note: Dependencies are written without any extension
 # Note: This can be omitted if the unit has no external dependencies
+ConfigChecker_DEP := Exception Utils
 
 # ******************************* Test Targets *********************************
 testall:
