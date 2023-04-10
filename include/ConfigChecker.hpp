@@ -43,7 +43,6 @@ class ConfigChecker
 		void validateHostDirective(const std::vector<std::string> &tokens);
 		void validatePortDirective(const std::vector<std::string> &tokens);
 		void validateServerNameDirective(const std::vector<std::string> &tokens);
-		void validateErrorPagesDirective(const std::vector<std::string> &tokens, std::ifstream &fin);
 		void validateClientMaxBodySizeDirective(const std::vector<std::string> &tokens);
 
 		// TODO(ConfigChecker): Implement these One-line directive validators
@@ -55,7 +54,8 @@ class ConfigChecker
 		void validateUploadDirective(const std::vector<std::string> &tokens);
 
 		// Block directive validators
-		void validateServerBlock(std::ifstream &fin);
-		void validateLocationDirective(const std::vector<std::string> &tokens, std::ifstream &fin);
-		void validateCgiDirective(const std::vector<std::string> &tokens);
+		void validateServerBlock();
+		void validateErrorPagesBlock(const std::vector<std::string> &tokens);
+		void validateLocationBlock(const std::vector<std::string> &tokens);
+		void validateCgiBlock(const std::vector<std::string> &tokens);
 };

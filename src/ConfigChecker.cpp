@@ -223,7 +223,7 @@ void ConfigChecker::validateConfigFile()
 		{
 			throw ConfigCheckerException("Expected opening curly brace '{' after server directive");
 		}
-		validateServerBlock(fin);
+		validateServerBlock();
 		++serverDirectiveCount;
 	}
 	if (serverDirectiveCount == 0)
@@ -232,7 +232,7 @@ void ConfigChecker::validateConfigFile()
 	}
 }
 
-void ConfigChecker::validateServerBlock(std::ifstream &fin)
+void ConfigChecker::validateServerBlock()
 {
 	std::string line;
 	std::vector<std::string> tokens;
@@ -253,9 +253,9 @@ void ConfigChecker::validateServerBlock(std::ifstream &fin)
 		tokens.front() == "host"                   ? validateHostDirective(tokens)
 		: tokens.front() == "port"                 ? validatePortDirective(tokens)
 		: tokens.front() == "server_name"          ? validateServerNameDirective(tokens)
-		: tokens.front() == "error_pages"          ? validateErrorPagesDirective(tokens, fin)
+		: tokens.front() == "error_pages"          ? validateErrorPagesBlock(tokens)
 		: tokens.front() == "client_max_body_size" ? validateClientMaxBodySizeDirective(tokens)
-		: tokens.front() == "location"             ? validateLocationDirective(tokens, fin)
+		: tokens.front() == "location"             ? validateLocationBlock(tokens)
 		: throw ConfigCheckerException("Invalid directive: " + tokens.front() + " at server block level");
 	}
 	throw ConfigCheckerException("Missing end curly brace '}' at server block level");
@@ -300,7 +300,7 @@ void ConfigChecker::validateServerNameDirective(const std::vector<std::string> &
 	}
 }
 
-void ConfigChecker::validateErrorPagesDirective(const std::vector<std::string> &tokens, std::ifstream &fin)
+void ConfigChecker::validateErrorPagesBlock(const std::vector<std::string> &tokens)
 {
 	std::string line;
 
@@ -350,8 +350,7 @@ void ConfigChecker::validateClientMaxBodySizeDirective(const std::vector<std::st
 	}
 }
 
-void ConfigChecker::validateLocationDirective(const std::vector<std::string> &tokens, std::ifstream &fin)
+void ConfigChecker::validateLocationBlock(const std::vector<std::string> &tokens)
 {
 	(void) tokens;
-	(void) fin;
 }
