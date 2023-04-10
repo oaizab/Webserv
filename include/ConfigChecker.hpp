@@ -27,6 +27,7 @@ class ConfigChecker
 		static bool validateHttpMethod(const std::string &method);
 		static bool validateErrorCode(const std::string &code);
 		static bool validateErrorPages(const std::string &errorPages);
+		static bool validateHttpStatusCode(const std::string &code);
 
 		// Methods
 		void validateConfigFile();

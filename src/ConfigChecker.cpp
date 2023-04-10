@@ -200,6 +200,24 @@ bool ConfigChecker::validateErrorPages(const std::string &errorPagesParam)
 	return true;
 }
 
+bool ConfigChecker::validateHttpStatusCode(const std::string &code)
+{
+	const char *DIGITS = "0123456789";
+
+	if (code.empty() or code.size() > 3)
+	{
+		return false;
+	}
+	if (code.find_first_not_of(DIGITS) != std::string::npos)
+	{
+		return false;
+	}
+
+	int statusCode = std::stoi(code);
+
+	return statusCode >= 100 and statusCode <= 599;
+}
+
 void ConfigChecker::validateConfigFile()
 {
 	std::string line;
