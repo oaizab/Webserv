@@ -105,6 +105,10 @@ bool ConfigChecker::validateHostname(const std::string &hostname)
 	return true;
 }
 
+/**
+ * @brief Validate size in bytes, kilobytes, megabytes or gigabytes
+ *
+ */
 bool ConfigChecker::validateSize(const std::string &sizeStr)
 {
 	const std::string SIZE_SUFFIXES = "kmgKMG";
@@ -135,6 +139,10 @@ bool ConfigChecker::validateHttpMethod(const std::string &method)
 	return std::find(std::begin(ALLOWED_METHODS), std::end(ALLOWED_METHODS), method) != std::end(ALLOWED_METHODS);
 }
 
+/**
+ * @brief Validate HTTP error codes (from 300 to 599)
+ *
+ */
 bool ConfigChecker::validateErrorCode(const std::string &code)
 {
 	const char *DIGITS = "0123456789";
@@ -151,6 +159,10 @@ bool ConfigChecker::validateErrorCode(const std::string &code)
 	return errorCode >= 300 and errorCode <= 599;
 }
 
+/**
+ * @brief Validate error pages line in the format "error_code1 error_code2 ... error_codeN path_to_error_page"
+ *
+ */
 bool ConfigChecker::validateErrorPages(const std::string &errorPagesParam)
 {
 	std::string errorPages = errorPagesParam;
