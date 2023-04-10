@@ -28,6 +28,16 @@ class ConfigChecker
 		static bool validateErrorCode(const std::string &code);
 		static bool validateErrorPages(const std::string &errorPages);
 
+		// Methods
+		void validateConfigFile();
+
+	private:
+		// Data members
+		std::string configFilePath;
+		std::ifstream fin;
+		size_t clientMaxBodySizeDirectiveCount;
+		size_t errorPagesDirectiveCount;
+
 		// One-line directive validators
 		void validateHostDirective(const std::vector<std::string> &tokens);
 		void validatePortDirective(const std::vector<std::string> &tokens);
@@ -47,14 +57,4 @@ class ConfigChecker
 		void validateServerBlock(std::ifstream &fin);
 		void validateLocationDirective(const std::vector<std::string> &tokens, std::ifstream &fin);
 		void validateCgiDirective(const std::vector<std::string> &tokens);
-
-		// Methods
-		void validateConfigFile();
-
-	private:
-		// Data members
-		std::string configFilePath;
-		std::ifstream fin;
-		size_t clientMaxBodySizeDirectiveCount;
-		size_t errorPagesDirectiveCount;
 };
