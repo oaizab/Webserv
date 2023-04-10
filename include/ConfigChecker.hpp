@@ -55,4 +55,6 @@ class ConfigChecker
 		// Data members
 		std::string configFilePath;
 		std::ifstream fin;
+		size_t clientMaxBodySizeDirectiveCount;
+		size_t errorPagesDirectiveCount;
 };

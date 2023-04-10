@@ -4,7 +4,11 @@
 #include <string>
 #include <vector>
 
-ConfigChecker::ConfigChecker() : configFilePath("./config/webserv.conf"), fin(configFilePath)
+ConfigChecker::ConfigChecker() :
+	configFilePath("./config/webserv.conf"),
+	fin(configFilePath),
+	clientMaxBodySizeDirectiveCount(0),
+	errorPagesDirectiveCount(0)
 {
 	if (not fin.is_open())
 	{
@@ -13,7 +17,11 @@ ConfigChecker::ConfigChecker() : configFilePath("./config/webserv.conf"), fin(co
 	validateConfigFile();
 }
 
-ConfigChecker::ConfigChecker(const std::string &configFilePath) : configFilePath(configFilePath), fin(configFilePath)
+ConfigChecker::ConfigChecker(const std::string &configFilePath) :
+	configFilePath(configFilePath),
+	fin(configFilePath),
+	clientMaxBodySizeDirectiveCount(0),
+	errorPagesDirectiveCount(0)
 {
 	if (not fin.is_open())
 	{
@@ -311,6 +319,11 @@ void ConfigChecker::validateErrorPagesDirective(const std::vector<std::string> &
 		}
 		if (line == "}")
 		{
+			++errorPagesDirectiveCount;
+			if (errorPagesDirectiveCount > 1)
+			{
+				throw ConfigCheckerException("error_pages directive can only be used once");
+			}
 			return;
 		}
 		if (not validateErrorPages(line))
@@ -330,6 +343,11 @@ void ConfigChecker::validateClientMaxBodySizeDirective(const std::vector<std::st
 	if (not validateSize(tokens.back()))
 	{
 		throw ConfigCheckerException("client_max_body_size: Invalid size");
+	}
+	++clientMaxBodySizeDirectiveCount;
+	if (clientMaxBodySizeDirectiveCount > 1)
+	{
+		throw ConfigCheckerException("client_max_body_size directive can only be used once");
 	}
 }
 
