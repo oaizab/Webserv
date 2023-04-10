@@ -372,5 +372,128 @@ void ConfigChecker::validateClientMaxBodySizeDirective(const std::vector<std::st
 
 void ConfigChecker::validateLocationBlock(const std::vector<std::string> &tokens)
 {
-	(void) tokens;
+	std::string line;
+
+	if (tokens.size() != 3 or tokens.back() != "{")
+	{
+		throw ConfigCheckerException("Expected opening curly brace '{' after location directive");
+	}
+	while (std::getline(fin, line))
+	{
+		std::replace(line.begin(), line.end(), '\t', ' ');
+		line = Utils::Trim(line);
+		if (line.empty() or line.front() == '#')
+		{
+			continue;
+		}
+		if (line == "}")
+		{
+			return;
+		}
+
+		std::vector<std::string> lineTokens = Utils::Split(line, ' ');
+
+		lineTokens.front() == "allowed_methods" ? validateAllowedMethodsDirective(lineTokens)
+		: lineTokens.front() == "redirect"      ? validateRedirectDirective(lineTokens)
+		: lineTokens.front() == "root"          ? validateRootDirective(lineTokens)
+		: lineTokens.front() == "autoindex"     ? validateAutoindexDirective(lineTokens)
+		: lineTokens.front() == "index"         ? validateIndexDirective(lineTokens)
+		: lineTokens.front() == "cgi"           ? validateCgiBlock(lineTokens)
+		: lineTokens.front() == "upload"        ? validateUploadDirective(lineTokens)
+		: throw ConfigCheckerException("Invalid directive: " + lineTokens.front() + " at location block level");
+	}
+}
+
+void ConfigChecker::validateAllowedMethodsDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+	{
+		throw ConfigCheckerException("allowed_methods directive requires at least one argument, HTTP method");
+	}
+	for (size_t i = 1; i < tokens.size(); i++)
+	{
+		if (tokens[i] != "GET" and tokens[i] != "POST" and tokens[i] != "DELETE")
+		{
+			throw ConfigCheckerException("Invalid HTTP method: " + tokens[i]);
+		}
+	}
+}
+
+void ConfigChecker::validateRedirectDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 3)
+	{
+		throw ConfigCheckerException("redirect directive requires two arguments, HTTP status code and URL");
+	}
+	if (not validateHttpStatusCode(tokens[1]))
+	{
+		throw ConfigCheckerException("Invalid HTTP status code: " + tokens[1]);
+	}
+}
+
+void ConfigChecker::validateRootDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("root directive requires one argument, path to directory");
+	}
+}
+
+void ConfigChecker::validateAutoindexDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("autoindex directive requires one argument, on or off");
+	}
+	if (tokens.back() != "on" and tokens.back() != "off")
+	{
+		throw ConfigCheckerException("Invalid autoindex directive: " + tokens.back());
+	}
+}
+
+void ConfigChecker::validateIndexDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+	{
+		throw ConfigCheckerException("index directive requires at least one argument, file name");
+	}
+}
+
+void ConfigChecker::validateCgiBlock(const std::vector<std::string> &tokens)
+{
+	std::string line;
+
+	if (tokens.size() != 2 or tokens.back() != "{")
+	{
+		throw ConfigCheckerException("Expected opening curly brace '{' after cgi directive");
+	}
+	while (std::getline(fin, line))
+	{
+		std::replace(line.begin(), line.end(), '\t', ' ');
+		line = Utils::Trim(line);
+		if (line.empty() or line.front() == '#')
+		{
+			continue;
+		}
+		if (line == "}")
+		{
+			return;
+		}
+
+		std::vector<std::string> lineTokens = Utils::Split(line, ' ');
+
+		if (lineTokens.size() != 2)
+		{
+			throw ConfigCheckerException("Invalid cgi entry, expected: extension path");
+		}
+	}
+	throw ConfigCheckerException("Expected closing curly brace '}' after cgi directive");
+}
+
+void ConfigChecker::validateUploadDirective(const std::vector<std::string> &tokens)
+{
+	if (tokens.size() != 2)
+	{
+		throw ConfigCheckerException("upload directive requires one argument, path to directory or off to disable");
+	}
 }
