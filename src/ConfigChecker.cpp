@@ -1,18 +1,30 @@
 #include "ConfigChecker.hpp"
 #include "Exception.hpp"
 #include "Utils.hpp"
-#include <cstdio>
 #include <string>
-#include <sys/_types/_size_t.h>
 #include <vector>
 
-ConfigChecker::ConfigChecker() : configFilePath("./config/webserv.conf")
+ConfigChecker::ConfigChecker() : configFilePath("./config/webserv.conf"), fin(configFilePath)
 {
+	if (not fin.is_open())
+	{
+		throw FileException("Failed to open config file: " + configFilePath);
+	}
+	validateConfigFile();
 }
 
-ConfigChecker::ConfigChecker(const std::string &configFilePath) : configFilePath(configFilePath)
+ConfigChecker::ConfigChecker(const std::string &configFilePath) : configFilePath(configFilePath), fin(configFilePath)
 {
+	if (not fin.is_open())
+	{
+		throw FileException("Failed to open config file" + configFilePath);
+	}
 	validateConfigFile();
+}
+
+ConfigChecker::~ConfigChecker()
+{
+	fin.close();
 }
 
 bool ConfigChecker::validateIp(const std::string &ipAddress)
@@ -65,12 +77,13 @@ bool ConfigChecker::validateHostname(const std::string &hostname)
 {
 	const int HOSTNAME_MAX_LENGTH = 255;
 	const int SEGMENT_MAX_LENGTH = 63;
+	const std::string ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.";
 
 	if (hostname.empty() or hostname.length() > HOSTNAME_MAX_LENGTH)
 	{
 		return false;
 	}
-	if (hostname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.") != std::string::npos)
+	if (hostname.find_first_not_of(ALLOWED_CHARS) != std::string::npos)
 	{
 		return false;
 	}
@@ -141,6 +154,7 @@ bool ConfigChecker::validateErrorCode(const std::string &code)
 bool ConfigChecker::validateErrorPages(const std::string &errorPagesParam)
 {
 	std::string errorPages = errorPagesParam;
+
 	if (errorPages.empty())
 	{
 		return false;
@@ -164,15 +178,8 @@ bool ConfigChecker::validateErrorPages(const std::string &errorPagesParam)
 	return true;
 }
 
-void ConfigChecker::validateConfigFile() const
+void ConfigChecker::validateConfigFile()
 {
-	std::ifstream fin(configFilePath);
-
-	if (not fin.is_open())
-	{
-		throw FileException("Failed to open config file");
-	}
-
 	std::string line;
 
 	while (std::getline(fin, line))
@@ -219,7 +226,6 @@ void ConfigChecker::validateServerBlock(std::ifstream &fin)
 		{
 			return;
 		}
-
 		tokens = Utils::Split(line, ' ');
 		tokens.front() == "host"                   ? validateHostDirective(tokens)
 		: tokens.front() == "port"                 ? validatePortDirective(tokens)
@@ -274,7 +280,6 @@ void ConfigChecker::validateServerNameDirective(const std::vector<std::string> &
 void ConfigChecker::validateErrorPagesDirective(const std::vector<std::string> &tokens, std::ifstream &fin)
 {
 	std::string line;
-	bool hasClosingBrace = false;
 
 	if (tokens.size() != 2)
 	{
@@ -294,18 +299,14 @@ void ConfigChecker::validateErrorPagesDirective(const std::vector<std::string> &
 		}
 		if (line == "}")
 		{
-			hasClosingBrace = true;
-			break;
+			return;
 		}
 		if (not validateErrorPages(line))
 		{
 			throw ConfigCheckerException("Invalid error_pages directive");
 		}
 	}
-	if (not hasClosingBrace)
-	{
-		throw ConfigCheckerException("Expected closing curly brace '}' after error_pages directive");
-	}
+	throw ConfigCheckerException("Expected closing curly brace '}' after error_pages directive");
 }
 
 void ConfigChecker::validateClientMaxBodySizeDirective(const std::vector<std::string> &tokens)

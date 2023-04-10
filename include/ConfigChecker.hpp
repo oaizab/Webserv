@@ -16,6 +16,9 @@ class ConfigChecker
 		ConfigChecker();
 		explicit ConfigChecker(const std::string &configFilePath);
 
+		// Destructor
+		~ConfigChecker();
+
 		// Static methods
 		static bool validateIp(const std::string &ipAddress);
 		static bool validatePortNumber(const std::string &port);
@@ -43,10 +46,10 @@ class ConfigChecker
 		static void validateUploadDirective(const std::vector<std::string> &tokens);
 
 		// Methods
-		void validateConfigFile() const;
+		void validateConfigFile();
 
 	private:
 		// Data members
 		std::string configFilePath;
-
+		std::ifstream fin;
 };
