@@ -46,8 +46,6 @@ class ConfigChecker
 		void validateListenDirective(const std::vector<std::string> &tokens);
 		void validateServerNameDirective(const std::vector<std::string> &tokens);
 		void validateClientMaxBodySizeDirective(const std::vector<std::string> &tokens);
-
-		// TODO(ConfigChecker): Implement these One-line directive validators
 		void validateAllowedMethodsDirective(const std::vector<std::string> &tokens);
 		void validateRedirectDirective(const std::vector<std::string> &tokens);
 		void validateRootDirective(const std::vector<std::string> &tokens);
