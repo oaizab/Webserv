@@ -125,3 +125,143 @@ TEST_CASE("validateErrorPages", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validateErrorPages("/404.html 404") == false);
 	REQUIRE(ConfigChecker::validateErrorPages("404 403 /notfound.php /anotherfile.php") == false);
 }
+
+TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
+{
+	// Valid testcase #1 (Regular)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+		file << "\thost localhost" << std::endl;
+		file << "\tport 8080" << std::endl;
+		file << "\tserver_name webserv" << std::endl;
+		file << "\n" << std::endl;
+		file << "\terror_pages {" << std::endl;
+		file << "\t\t404 /404.html" << std::endl;
+		file << "\t\t500 501 502 /50x.html" << std::endl;
+		file << "\t\t301 307 /redirect.php" << std::endl;
+		file << "\t}" << std::endl;
+		file << "\tclient_max_body_size 42m" << std::endl;
+		file << "}" << std::endl;
+
+		file.close();
+		REQUIRE_NOTHROW(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Valid testcase #2 (Empty server block)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+		file << "}" << std::endl;
+
+		file.close();
+		REQUIRE_NOTHROW(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Valid testcase #3 (Empty error_pages directive)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+		file << "\terror_pages {" << std::endl;
+		file << "\t}" << std::endl;
+		file << "}" << std::endl;
+
+		file.close();
+		REQUIRE_NOTHROW(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Invalid testcase #1 (Missing closing curly brace)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Invalid testcase #2 (Wrong port)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+		file << "\thost localhost" << std::endl;
+		file << "\tport WRONG_PORT_NUMBER" << std::endl;
+		file << "}" << std::endl;
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Invalid testcase #3 (Duplicate client_max_body_size)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+		file << "\thost localhost" << std::endl;
+		file << "\tport 8080" << std::endl;
+		file << "\tserver_name webserv" << std::endl;
+		file << "\n" << std::endl;
+		file << "\terror_pages {" << std::endl;
+		file << "\t\t404 /404.html" << std::endl;
+		file << "\t\t500 501 502 /50x.html" << std::endl;
+		file << "\t\t301 307 /redirect.php" << std::endl;
+		file << "\t}" << std::endl;
+		file << "\tclient_max_body_size 42m" << std::endl;
+		file << "\tclient_max_body_size 42m" << std::endl;
+		file << "}" << std::endl;
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Invalid testcase #4 (Missing closing brace for server)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+		file << "\thost localhost" << std::endl;
+		file << "\tport 8080" << std::endl;
+		file << "\tserver_name webserv" << std::endl;
+		file << "\n" << std::endl;
+		file << "\terror_pages {" << std::endl;
+		file << "\t\t404 /404.html" << std::endl;
+		file << "\t\t500 501 502 /50x.html" << std::endl;
+		file << "\t\t301 307 /redirect.php" << std::endl;
+		file << "\tclient_max_body_size 42m" << std::endl;
+		file << "}" << std::endl;
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Invalid testcase #5 (Duplicate error_pages directive)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file << "server {" << std::endl;
+		file << "\thost localhost" << std::endl;
+		file << "\tport 8080" << std::endl;
+		file << "\tserver_name webserv" << std::endl;
+		file << "\n" << std::endl;
+		file << "\terror_pages {" << std::endl;
+		file << "\t\t404 /404.html" << std::endl;
+		file << "\t\t500 501 502 /50x.html" << std::endl;
+		file << "\t\t301 307 /redirect.php" << std::endl;
+		file << "\t}" << std::endl;
+		file << "\terror_pages {" << std::endl;
+		file << "\t\t404 /404.html" << std::endl;
+		file << "\t\t500 501 502 /50x.html" << std::endl;
+		file << "\t\t301 307 /redirect.php" << std::endl;
+		file << "\t}" << std::endl;
+		file << "\tclient_max_body_size 42m" << std::endl;
+		file << "}" << std::endl;
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+}
