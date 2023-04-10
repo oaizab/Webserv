@@ -66,7 +66,7 @@ TEST_DIR := tests
 TOOL_DIR := tools
 
 # ************************************ Files ***********************************
-NAME := a.out
+NAME := webserv
 # TODO: Make sure to change this before pushing to the intra
 SRCS := $(shell find $(SRC_DIR) -type f -name *.cpp -print)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
