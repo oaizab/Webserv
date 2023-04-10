@@ -9,7 +9,11 @@ ConfigChecker::ConfigChecker() :
 	fin(configFilePath),
 	clientMaxBodySizeDirectiveCount(0),
 	errorPagesDirectiveCount(0),
-	serverDirectiveCount(0)
+	serverDirectiveCount(0),
+	allowedMethodsDirectiveCount(0),
+	rootDirectiveCount(0),
+	autoindexDirectiveCount(0),
+	cgiBlockCount(0)
 {
 	if (not fin.is_open())
 	{
@@ -23,7 +27,11 @@ ConfigChecker::ConfigChecker(const std::string &configFilePath) :
 	fin(configFilePath),
 	clientMaxBodySizeDirectiveCount(0),
 	errorPagesDirectiveCount(0),
-	serverDirectiveCount(0)
+	serverDirectiveCount(0),
+	allowedMethodsDirectiveCount(0),
+	rootDirectiveCount(0),
+	autoindexDirectiveCount(0),
+	cgiBlockCount(0)
 {
 	if (not fin.is_open())
 	{
@@ -388,6 +396,10 @@ void ConfigChecker::validateLocationBlock(const std::vector<std::string> &tokens
 		}
 		if (line == "}")
 		{
+			allowedMethodsDirectiveCount = 0;
+			rootDirectiveCount = 0;
+			autoindexDirectiveCount = 0;
+			cgiBlockCount = 0;
 			return;
 		}
 
@@ -417,6 +429,11 @@ void ConfigChecker::validateAllowedMethodsDirective(const std::vector<std::strin
 			throw ConfigCheckerException("Invalid HTTP method: " + tokens[i]);
 		}
 	}
+	++allowedMethodsDirectiveCount;
+	if (allowedMethodsDirectiveCount > 1)
+	{
+		throw ConfigCheckerException("allowed_methods directive can only be used once");
+	}
 }
 
 void ConfigChecker::validateRedirectDirective(const std::vector<std::string> &tokens)
@@ -437,6 +454,11 @@ void ConfigChecker::validateRootDirective(const std::vector<std::string> &tokens
 	{
 		throw ConfigCheckerException("root directive requires one argument, path to directory");
 	}
+	++rootDirectiveCount;
+	if (rootDirectiveCount > 1)
+	{
+		throw ConfigCheckerException("root directive can only be used once");
+	}
 }
 
 void ConfigChecker::validateAutoindexDirective(const std::vector<std::string> &tokens)
@@ -448,6 +470,11 @@ void ConfigChecker::validateAutoindexDirective(const std::vector<std::string> &t
 	if (tokens.back() != "on" and tokens.back() != "off")
 	{
 		throw ConfigCheckerException("Invalid autoindex directive: " + tokens.back());
+	}
+	++autoindexDirectiveCount;
+	if (autoindexDirectiveCount > 1)
+	{
+		throw ConfigCheckerException("autoindex directive can only be used once");
 	}
 }
 
@@ -477,6 +504,11 @@ void ConfigChecker::validateCgiBlock(const std::vector<std::string> &tokens)
 		}
 		if (line == "}")
 		{
+			++cgiBlockCount;
+			if (cgiBlockCount > 1)
+			{
+				throw ConfigCheckerException("cgi directive can only be used once");
+			}
 			return;
 		}
 

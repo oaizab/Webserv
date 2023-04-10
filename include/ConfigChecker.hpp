@@ -39,6 +39,10 @@ class ConfigChecker
 		size_t clientMaxBodySizeDirectiveCount;
 		size_t errorPagesDirectiveCount;
 		size_t serverDirectiveCount;
+		size_t allowedMethodsDirectiveCount;
+		size_t rootDirectiveCount;
+		size_t autoindexDirectiveCount;
+		size_t cgiBlockCount;
 
 		// One-line directive validators
 		void validateHostDirective(const std::vector<std::string> &tokens);
