@@ -242,6 +242,8 @@ void ConfigChecker::validateConfigFile()
 			throw ConfigCheckerException("Expected opening curly brace '{' after server directive");
 		}
 		validateServerBlock();
+		clientMaxBodySizeDirectiveCount = 0;
+		errorPagesDirectiveCount = 0;
 		++serverDirectiveCount;
 	}
 	if (serverDirectiveCount == 0)
