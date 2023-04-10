@@ -213,15 +213,11 @@ void ConfigChecker::validateConfigFile()
 
 		std::vector<std::string> tokens = Utils::Split(line, ' ');
 
-		if (tokens.size() != 2)
+		if (tokens.front() != "server")
 		{
 			throw ConfigCheckerException("Invalid directive at the top level: " + tokens.front());
 		}
-		if (tokens.front() != "server")
-		{
-			throw ConfigCheckerException("Expected 'server' directive at the top level");
-		}
-		if (tokens.back() != "{")
+		if (tokens.size() != 2 or tokens.back() != "{")
 		{
 			throw ConfigCheckerException("Expected opening curly brace '{' after server directive");
 		}
@@ -262,11 +258,11 @@ void ConfigChecker::validateHostDirective(const std::vector<std::string> &tokens
 {
 	if (tokens.size() != 2)
 	{
-		throw ConfigCheckerException("host directive requires at least one argument");
+		throw ConfigCheckerException("host directive requires one argument, host name or IP address");
 	}
 	if (not validateHostname(tokens.back()) and not validateIp(tokens.back()))
 	{
-		throw ConfigCheckerException("Invalid host directive");
+		throw ConfigCheckerException("Invalid host directive: " + tokens.back());
 	}
 }
 
@@ -274,17 +270,17 @@ void ConfigChecker::validatePortDirective(const std::vector<std::string> &tokens
 {
 	if (tokens.size() != 2)
 	{
-		throw ConfigCheckerException("port directive requires at least one argument");
+		throw ConfigCheckerException("port directive requires one argument, port number");
 	}
 	if (not validatePortNumber(tokens.back()))
 	{
-		throw ConfigCheckerException("Invalid port directive");
+		throw ConfigCheckerException("Invalid port number: " + tokens.back());
 	}
 }
 
 void ConfigChecker::validateServerNameDirective(const std::vector<std::string> &tokens)
 {
-	if (tokens.size() != 2)
+	if (tokens.size() < 2)
 	{
 		throw ConfigCheckerException("server_name directive requires at least one argument");
 	}
@@ -292,7 +288,7 @@ void ConfigChecker::validateServerNameDirective(const std::vector<std::string> &
 	{
 		if (not validateHostname(tokens[i]))
 		{
-			throw ConfigCheckerException("Invalid server name" + tokens[i]);
+			throw ConfigCheckerException("Invalid server name: " + tokens[i]);
 		}
 	}
 }
@@ -301,11 +297,7 @@ void ConfigChecker::validateErrorPagesDirective(const std::vector<std::string> &
 {
 	std::string line;
 
-	if (tokens.size() != 2)
-	{
-		throw ConfigCheckerException("Invalid error_pages directive");
-	}
-	if (tokens.back() != "{")
+	if (tokens.size() != 2 or tokens.back() != "{")
 	{
 		throw ConfigCheckerException("Expected opening curly brace '{' after error_pages directive");
 	}
@@ -342,7 +334,7 @@ void ConfigChecker::validateClientMaxBodySizeDirective(const std::vector<std::st
 	}
 	if (not validateSize(tokens.back()))
 	{
-		throw ConfigCheckerException("client_max_body_size: Invalid size");
+		throw ConfigCheckerException("client_max_body_size: Invalid size: " + tokens.back());
 	}
 	++clientMaxBodySizeDirectiveCount;
 	if (clientMaxBodySizeDirectiveCount > 1)
