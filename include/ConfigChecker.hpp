@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include <iostream>
-
 class ConfigChecker
 {
 	public:
@@ -45,8 +43,7 @@ class ConfigChecker
 		size_t cgiBlockCount;
 
 		// One-line directive validators
-		void validateHostDirective(const std::vector<std::string> &tokens);
-		void validatePortDirective(const std::vector<std::string> &tokens);
+		void validateListenDirective(const std::vector<std::string> &tokens);
 		void validateServerNameDirective(const std::vector<std::string> &tokens);
 		void validateClientMaxBodySizeDirective(const std::vector<std::string> &tokens);
 

@@ -278,8 +278,7 @@ void ConfigChecker::validateServerBlock()
 			return;
 		}
 		tokens = Utils::Split(line, ' ');
-		tokens.front() == "host"                   ? validateHostDirective(tokens)
-		: tokens.front() == "port"                 ? validatePortDirective(tokens)
+		 tokens.front() == "listen"                ? validateListenDirective(tokens)
 		: tokens.front() == "server_name"          ? validateServerNameDirective(tokens)
 		: tokens.front() == "error_pages"          ? validateErrorPagesBlock(tokens)
 		: tokens.front() == "client_max_body_size" ? validateClientMaxBodySizeDirective(tokens)
@@ -289,27 +288,36 @@ void ConfigChecker::validateServerBlock()
 	throw ConfigCheckerException("Missing end curly brace '}' at server block level");
 }
 
-void ConfigChecker::validateHostDirective(const std::vector<std::string> &tokens)
+void ConfigChecker::validateListenDirective(const std::vector<std::string> &tokens)
 {
 	if (tokens.size() != 2)
 	{
-		throw ConfigCheckerException("host directive requires one argument, host name or IP address");
+		throw ConfigCheckerException("listen directive requires one argument, host, port number, or host:port");
 	}
-	if (not validateHostname(tokens.back()) and not validateIp(tokens.back()))
-	{
-		throw ConfigCheckerException("Invalid host directive: " + tokens.back());
-	}
-}
 
-void ConfigChecker::validatePortDirective(const std::vector<std::string> &tokens)
-{
-	if (tokens.size() != 2)
+	std::vector<std::string> hostAndPort = Utils::Split(tokens.back(), ':');
+
+	if (hostAndPort.size() == 1)
 	{
-		throw ConfigCheckerException("port directive requires one argument, port number");
+		if (not validateHostname(hostAndPort.front()) and not validateIp(hostAndPort.front()))
+		{
+			throw ConfigCheckerException("Invalid host: " + tokens.back());
+		}
 	}
-	if (not validatePortNumber(tokens.back()))
+	else if (hostAndPort.size() == 2)
 	{
-		throw ConfigCheckerException("Invalid port number: " + tokens.back());
+		if (not validateHostname(hostAndPort.front()) and not validateIp(hostAndPort.front()))
+		{
+			throw ConfigCheckerException("Invalid host: " + tokens.back());
+		}
+		if (not validatePortNumber(hostAndPort.back()))
+		{
+			throw ConfigCheckerException("Invalid port number: " + tokens.back());
+		}
+	}
+	else
+	{
+		throw ConfigCheckerException("Invalid listen directive: " + tokens.back());
 	}
 }
 

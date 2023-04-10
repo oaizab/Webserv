@@ -132,18 +132,17 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten 80" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_NOTHROW(ConfigChecker("test.conf"));
@@ -177,23 +176,22 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "\n" << std::endl;
-		file << "\tlocation / {" << std::endl;
-		file << "\t\troot /var/www" << std::endl;
-		file << "\t\tindex index.html index.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten localhost:8080" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "\n" << std::endl
+			 << "\tlocation / {" << std::endl
+			 << "\t\troot /var/www" << std::endl
+			 << "\t\tindex index.html index.php" << std::endl
+			 << "\t}" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_NOTHROW(ConfigChecker("test.conf"));
@@ -203,28 +201,27 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "\n" << std::endl;
-		file << "\tlocation / {" << std::endl;
-		file << "\t\troot /var/www" << std::endl;
-		file << "\t\tindex index.html index.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\n" << std::endl;
-		file << "\tlocation /api {" << std::endl;
-		file << "\t\troot /var/www/api" << std::endl;
-		file << "\t\tindex index.html index.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten localhost" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "\n" << std::endl
+			 << "\tlocation / {" << std::endl
+			 << "\t\troot /var/www" << std::endl
+			 << "\t\tindex index.html index.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\n" << std::endl
+			 << "\tlocation /api {" << std::endl
+			 << "\t\troot /var/www/api" << std::endl
+			 << "\t\tindex index.html index.php" << std::endl
+			 << "\t}" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_NOTHROW(ConfigChecker("test.conf"));
@@ -241,14 +238,13 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
 		remove("test.conf");
 	}
-	// Invalid testcase #2 (Wrong port)
+	// Invalid testcase #2 (Wrong listen directive)
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport WRONG_PORT_NUMBER" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
@@ -258,19 +254,18 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten localhost:8080" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
@@ -280,17 +275,16 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten localhost:8080" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
@@ -300,23 +294,22 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten localhost:8080" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
@@ -334,29 +327,28 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "\n" << std::endl;
-		file << "\tlocation / {" << std::endl;
-		file << "\t\troot /var/www" << std::endl;
-		file << "\t\tindex index.html index.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\n" << std::endl;
-		file << "\tlocation /api {" << std::endl;
-		file << "\t\troot /var/www/api" << std::endl;
-		file << "\t\tindex index.html index.php" << std::endl;
-		file << "\tautoindex on" << std::endl;
-		file << "\tupload off" << std::endl;
-		file << "\t}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten localhost:8080" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "\n" << std::endl
+			 << "\tlocation / {" << std::endl
+			 << "\t\troot /var/www" << std::endl
+			 << "\t\tindex index.html index.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\n" << std::endl
+			 << "\tlocation /api {" << std::endl
+			 << "\t\troot /var/www/api" << std::endl
+			 << "\t\tindex index.html index.php" << std::endl
+			 << "\tautoindex on" << std::endl
+			 << "\tupload off" << std::endl
+			 << "\t}" << std::endl;
 
 		file.close();
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
@@ -366,30 +358,29 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 	{
 		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
 
-		file << "server {" << std::endl;
-		file << "\thost localhost" << std::endl;
-		file << "\tport 8080" << std::endl;
-		file << "\tserver_name webserv" << std::endl;
-		file << "\n" << std::endl;
-		file << "\terror_pages {" << std::endl;
-		file << "\t\t404 /404.html" << std::endl;
-		file << "\t\t500 501 502 /50x.html" << std::endl;
-		file << "\t\t301 307 /redirect.php" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\tclient_max_body_size 42m" << std::endl;
-		file << "\n" << std::endl;
-		file << "\tlocation / {" << std::endl;
-		file << "\t\troot /var/www" << std::endl;
-		file << "\t\tindex" << std::endl;
-		file << "\t}" << std::endl;
-		file << "\n" << std::endl;
-		file << "\tlocation /api {" << std::endl;
-		file << "\t\troot /var/www/api" << std::endl;
-		file << "\t\tindex" << std::endl;
-		file << "\tautoindex on" << std::endl;
-		file << "\tupload off" << std::endl;
-		file << "\t}" << std::endl;
-		file << "}" << std::endl;
+		file << "server {" << std::endl
+			 << "\tlisten localhost:8080" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "\n" << std::endl
+			 << "\terror_pages {" << std::endl
+			 << "\t\t404 /404.html" << std::endl
+			 << "\t\t500 501 502 /50x.html" << std::endl
+			 << "\t\t301 307 /redirect.php" << std::endl
+			 << "\t}" << std::endl
+			 << "\tclient_max_body_size 42m" << std::endl
+			 << "\n" << std::endl
+			 << "\tlocation / {" << std::endl
+			 << "\t\troot /var/www" << std::endl
+			 << "\t\tindex" << std::endl
+			 << "\t}" << std::endl
+			 << "\n" << std::endl
+			 << "\tlocation /api {" << std::endl
+			 << "\t\troot /var/www/api" << std::endl
+			 << "\t\tindex" << std::endl
+			 << "\tautoindex on" << std::endl
+			 << "\tupload off" << std::endl
+			 << "\t}" << std::endl
+			 << "}" << std::endl;
 
 		file.close();
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
