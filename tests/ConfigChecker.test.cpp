@@ -264,4 +264,12 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 		REQUIRE_THROWS(ConfigChecker("test.conf"));
 		remove("test.conf");
 	}
+	// Invalid testcase #6 (Empty file)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::app);
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
 }

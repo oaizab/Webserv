@@ -37,6 +37,7 @@ class ConfigChecker
 		std::ifstream fin;
 		size_t clientMaxBodySizeDirectiveCount;
 		size_t errorPagesDirectiveCount;
+		size_t serverDirectiveCount;
 
 		// One-line directive validators
 		void validateHostDirective(const std::vector<std::string> &tokens);

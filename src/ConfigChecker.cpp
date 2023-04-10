@@ -8,7 +8,8 @@ ConfigChecker::ConfigChecker() :
 	configFilePath("./config/webserv.conf"),
 	fin(configFilePath),
 	clientMaxBodySizeDirectiveCount(0),
-	errorPagesDirectiveCount(0)
+	errorPagesDirectiveCount(0),
+	serverDirectiveCount(0)
 {
 	if (not fin.is_open())
 	{
@@ -21,7 +22,8 @@ ConfigChecker::ConfigChecker(const std::string &configFilePath) :
 	configFilePath(configFilePath),
 	fin(configFilePath),
 	clientMaxBodySizeDirectiveCount(0),
-	errorPagesDirectiveCount(0)
+	errorPagesDirectiveCount(0),
+	serverDirectiveCount(0)
 {
 	if (not fin.is_open())
 	{
@@ -222,6 +224,11 @@ void ConfigChecker::validateConfigFile()
 			throw ConfigCheckerException("Expected opening curly brace '{' after server directive");
 		}
 		validateServerBlock(fin);
+		++serverDirectiveCount;
+	}
+	if (serverDirectiveCount == 0)
+	{
+		throw ConfigCheckerException("No server blocks found");
 	}
 }
 
