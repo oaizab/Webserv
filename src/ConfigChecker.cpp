@@ -25,7 +25,7 @@ ConfigChecker::ConfigChecker(const std::string &configFilePath) :
 {
 	if (not fin.is_open())
 	{
-		throw FileException("Failed to open config file" + configFilePath);
+		throw FileException("Failed to open config file: " + configFilePath);
 	}
 	validateConfigFile();
 }
