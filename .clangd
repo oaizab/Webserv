@@ -38,5 +38,6 @@ Diagnostics:
 	  "cert-err33-c",
 	  "hicpp-use-equals-default",
 	  "modernize-use-equals-default",
-	  "cert-err60-cpp"
+	  "cert-err60-cpp",
+	  "readability-convert-member-functions-to-static"
     ]
