@@ -15,10 +15,6 @@ class Location
 		void setRoot(const std::string &root);
 		void createRedirection(const std::string &url, const std::string &code);
 
-		bool isAutoIndex() const;
-		bool isRedirection() const;
-		
-
 		// Attributes
 		std::string root;
 		std::vector<std::string> index;

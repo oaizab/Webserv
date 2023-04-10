@@ -32,12 +32,3 @@ void Location::createRedirection(const std::string &url, const std::string &code
 	}
 }
 
-bool Location::isAutoIndex() const
-{
-	return autoIndex;
-}
-
-bool Location::isRedirection() const
-{
-	return redirect;
-}
