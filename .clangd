@@ -40,4 +40,5 @@ Diagnostics:
 	  "modernize-use-equals-default",
 	  "cert-err60-cpp",
 	  "readability-convert-member-functions-to-static"
+	  "misc-non-private-member-variables-in-classes"
     ]
