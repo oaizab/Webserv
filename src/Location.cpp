@@ -9,12 +9,12 @@ Location::Location()
 
 void Location::addIndex(const std::string &index)
 {
-	this->index.push_back(index);
+	this->index.insert(index);
 }
 
 void Location::addAllowedMethod(const std::string &method)
 {
-	allowedMethods.push_back(method);
+	allowedMethods.insert(method);
 }
 
 void Location::setRoot(const std::string &root)

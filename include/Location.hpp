@@ -1,7 +1,7 @@
 #pragma once
 
+#include <set>
 #include <string>
-#include <vector>
 
 class Location
 {
@@ -17,9 +17,9 @@ class Location
 
 		// Attributes
 		std::string root;
-		std::vector<std::string> index;
+		std::set<std::string> index;
 		bool autoIndex;
-		std::vector<std::string> allowedMethods;
+		std::set<std::string> allowedMethods;
 		bool upload;
 		std::string uploadPath;
 		bool redirect;
