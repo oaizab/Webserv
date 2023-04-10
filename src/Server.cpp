@@ -2,9 +2,12 @@
 
 Server::Server()
 {
-	host = "";
-	port = "8080";
 	clientMaxBodySize = 0;
+}
+
+void Server::addListen(const std::string &host, const std::string &port)
+{
+	listen.push_back(std::make_pair(host, port));
 }
 
 void Server::addServerName(const std::string &serverName)
