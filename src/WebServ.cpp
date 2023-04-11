@@ -11,9 +11,6 @@
 
 std::vector<Server> WebServ::servers;
 
-void WebServ::startServers()
-{}
-
 void WebServ::startServers(const std::string &configFilePath)
 {
 	(void)configFilePath;

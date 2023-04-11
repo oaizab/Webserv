@@ -12,7 +12,6 @@ class WebServ
 	public:
 	// Methods
 	static void startServers(const std::string &configFilePath);
-	static void startServers();
 	static void parseServers(const std::string &configFilePath);
 	static Server parseServerBlock(std::ifstream &fin);
 	static std::pair<std::string, std::string> parseListenParams(const std::string &param);
