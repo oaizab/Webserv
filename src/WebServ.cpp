@@ -1,6 +1,7 @@
 #include "WebServ.hpp"
 #include "ConfigChecker.hpp"
 #include "Exception.hpp"
+#include "Location.hpp"
 #include "Utils.hpp"
 #include <algorithm>
 #include <fstream>
@@ -69,14 +70,14 @@ Server WebServ::parseServerBlock(std::ifstream &fin)
 		{
 			parseErrorPagesBlock( fin, server);
 		}
-		// else if (tokens.front() == "client_max_body_size")
-		// {
-		// 	server.clientMaxBodySize = std::stoul(tokens[1]);
-		// }
-		// else if (tokens.front() == "location")
-		// {
-		// 	server.addLocation(Location::parseLocationBlock(fin, tokens[1]));
-		// }
+		else if (tokens.front() == "client_max_body_size")
+		{
+			server.clientMaxBodySize = parseClientMaxBodySizeParam(tokens[1]);
+		}
+		else if (tokens.front() == "location")
+		{
+			server.addLocation(parseLocationBlock(fin, tokens[1]));
+		}
 	}
 	return server;
 }
@@ -141,4 +142,58 @@ size_t WebServ::parseClientMaxBodySizeParam(const std::string &param)
 			size = size * 1024 * 1024 * 1024;
 	}
 	return size;
+}
+
+Location WebServ::parseLocationBlock(std::ifstream &fin, const std::string &uri)
+{
+	Location location;
+	std::string line;
+
+	location.uri = uri;
+	while (std::getline(fin, line))
+	{
+		std::replace(line.begin(), line.end(), '\t', ' ');
+		line = Utils::Trim(line);
+		if (line.empty() or line[0] == '#')
+			continue;
+		
+		if (line == "}")
+			break;
+		
+		std::vector<std::string> tokens = Utils::Split(line, ' ');
+		if (tokens.front() == "root")
+		{
+			location.root = tokens[1];
+		}
+		else if (tokens.front() == "index")
+		{
+			for (size_t i = 1; i < tokens.size(); ++i)
+				location.addIndex(tokens[i]);
+		}
+		else if (tokens.front() == "autoindex")
+		{
+			location.autoIndex = tokens[1] == "on";
+		}
+		else if (tokens.front() == "upload")
+		{
+			if (tokens[1] == "off")
+				location.upload = false;
+			else
+			{
+				location.upload = true;
+				location.uploadPath = tokens[1];
+			}
+		}
+		else if (tokens.front() == "redirect")
+		{
+			location.createRedirection(tokens[2], tokens[1]);
+		}
+		else if (tokens.front() == "allowed_methods")
+		{
+			for (size_t i = 1; i < tokens.size(); ++i)
+				location.addAllowedMethod(tokens[i]);
+		}
+		// TODO(): parse cgi
+	}
+	return location;
 }

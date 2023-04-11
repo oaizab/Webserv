@@ -16,6 +16,7 @@ class Location
 		void createRedirection(const std::string &url, const std::string &code);
 
 		// Attributes
+		std::string uri;
 		std::string root;
 		std::set<std::string> index;
 		bool autoIndex;
