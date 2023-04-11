@@ -66,7 +66,7 @@ Server WebServ::parseServerBlock(std::ifstream &fin)
 			for (size_t i = 1; i < tokens.size(); ++i)
 				server.addServerName(tokens[i]);
 		}
-		else if (tokens.front() == "error_page")
+		else if (tokens.front() == "error_pages")
 		{
 			parseErrorPagesBlock( fin, server);
 		}
