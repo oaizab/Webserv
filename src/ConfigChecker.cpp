@@ -313,7 +313,7 @@ void ConfigChecker::validateServerBlock()
 			return;
 		}
 		tokens = Utils::Split(line, ' ');
-		 tokens.front() == "listen"                ? validateListenDirective(tokens)
+		tokens.front() == "listen"                 ? validateListenDirective(tokens)
 		: tokens.front() == "server_name"          ? validateServerNameDirective(tokens)
 		: tokens.front() == "error_pages"          ? validateErrorPagesBlock(tokens)
 		: tokens.front() == "client_max_body_size" ? validateClientMaxBodySizeDirective(tokens)
