@@ -2,10 +2,16 @@
 
 #include <cstring>
 #include <fstream>
+#include <netdb.h>
 #include <set>
 #include <sstream>
 #include <string>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <vector>
+
+#include "Exception.hpp"
+#include "Utils.hpp"
 
 class ConfigChecker
 {
@@ -26,6 +32,7 @@ class ConfigChecker
 		static bool validateErrorCode(const std::string &code);
 		static bool validateErrorPages(const std::string &errorPages);
 		static bool validateHttpStatusCode(const std::string &code);
+		static bool validateServerName(const std::string &serverName);
 
 		// Methods
 		void validateConfigFile();
