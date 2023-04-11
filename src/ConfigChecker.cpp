@@ -1,8 +1,4 @@
 #include "ConfigChecker.hpp"
-#include "Exception.hpp"
-#include "Utils.hpp"
-#include <string>
-#include <vector>
 
 ConfigChecker::ConfigChecker() :
 	configFilePath("./config/webserv.conf"),
@@ -111,6 +107,45 @@ bool ConfigChecker::validateHostname(const std::string &hostname)
 	}
 
 	std::stringstream stream(hostname);
+	std::string segment;
+
+	while (std::getline(stream, segment, '.'))
+	{
+		if (segment.length() > SEGMENT_MAX_LENGTH)
+		{
+			return false;
+		}
+	}
+
+	struct addrinfo *result = NULL;
+
+	if (getaddrinfo(hostname.c_str(), NULL, NULL, &result) == -1)
+	{
+		throw std::runtime_error("getaddrinfo() failed: " + std::string(strerror(errno)));
+	}
+	return result != NULL;
+}
+
+bool ConfigChecker::validateServerName(const std::string &serverName)
+{
+	const int HOSTNAME_MAX_LENGTH = 255;
+	const int SEGMENT_MAX_LENGTH = 63;
+	const std::string ALLOWED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.";
+
+	if (serverName.empty() or serverName.length() > HOSTNAME_MAX_LENGTH)
+	{
+		return false;
+	}
+	if (serverName.find_first_not_of(ALLOWED_CHARS) != std::string::npos)
+	{
+		return false;
+	}
+	if (serverName.front() == '-' or serverName.front() == '.' or serverName.back() == '-' or serverName.back() == '.')
+	{
+		return false;
+	}
+
+	std::stringstream stream(serverName);
 	std::string segment;
 
 	while (std::getline(stream, segment, '.'))
@@ -295,24 +330,39 @@ void ConfigChecker::validateListenDirective(const std::vector<std::string> &toke
 		throw ConfigCheckerException("listen directive requires one argument, host, port number, or host:port");
 	}
 
-	std::vector<std::string> hostAndPort = Utils::Split(tokens.back(), ':');
+	const std::vector<std::string> hostAndPort = Utils::Split(tokens.back(), ':');
 
 	if (hostAndPort.size() == 1)
 	{
-		if (not validateHostname(hostAndPort.front()) and not validateIp(hostAndPort.front()))
+		const std::string &str = hostAndPort.front();
+
+		if (str.find_first_not_of("0123456789") == std::string::npos)
 		{
-			throw ConfigCheckerException("Invalid host: " + tokens.back());
+			if (not validatePortNumber(str))
+			{
+				throw ConfigCheckerException("Invalid port number: " + str);
+			}
+		}
+		else
+		{
+			if (not validateHostname(str) and not validateIp(str))
+			{
+				throw ConfigCheckerException("Invalid host: " + str);
+			}
 		}
 	}
 	else if (hostAndPort.size() == 2)
 	{
-		if (not validateHostname(hostAndPort.front()) and not validateIp(hostAndPort.front()))
+		const std::string &host = hostAndPort.front();
+		const std::string &port = hostAndPort.back();
+
+		if (not validateHostname(host) and not validateIp(host))
 		{
-			throw ConfigCheckerException("Invalid host: " + tokens.back());
+			throw ConfigCheckerException("Invalid host: " + host);
 		}
-		if (not validatePortNumber(hostAndPort.back()))
+		if (not validatePortNumber(port))
 		{
-			throw ConfigCheckerException("Invalid port number: " + tokens.back());
+			throw ConfigCheckerException("Invalid port number: " + port);
 		}
 	}
 	else
@@ -329,7 +379,7 @@ void ConfigChecker::validateServerNameDirective(const std::vector<std::string> &
 	}
 	for (size_t i = 1; i < tokens.size(); i++)
 	{
-		if (not validateHostname(tokens[i]))
+		if (not validateServerName(tokens[i]))
 		{
 			throw ConfigCheckerException("Invalid server name: " + tokens[i]);
 		}

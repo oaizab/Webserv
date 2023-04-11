@@ -52,6 +52,23 @@ TEST_CASE("validateHostname", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validateHostname("www.google.com.") == false);
 	REQUIRE(ConfigChecker::validateHostname("ho$tn@me-with-inv@lid-ch@r@cter$") == false);
 	REQUIRE(ConfigChecker::validateHostname(std::string(64, 'A').append(".com")) == false);
+	REQUIRE(ConfigChecker::validateHostname("unknow") == false);
+}
+
+TEST_CASE("validateServerName", "[ConfigChecker]")
+{
+	// Valid testcases
+	REQUIRE(ConfigChecker::validateServerName("localhost") == true);
+	REQUIRE(ConfigChecker::validateServerName("www.google.com") == true);
+
+	// Invalid testcases
+	REQUIRE(ConfigChecker::validateServerName("") == false);
+	REQUIRE(ConfigChecker::validateServerName(std::string(255, 'A')) == false);
+	REQUIRE(ConfigChecker::validateServerName("-thisShouldBeInvalid") == false);
+	REQUIRE(ConfigChecker::validateServerName("thisAlsoShouldBeInvalid-") == false);
+	REQUIRE(ConfigChecker::validateServerName("www.google.com.") == false);
+	REQUIRE(ConfigChecker::validateServerName("ho$tn@me-with-inv@lid-ch@r@cter$") == false);
+	REQUIRE(ConfigChecker::validateServerName(std::string(64, 'A').append(".com")) == false);
 }
 
 TEST_CASE("validateSize", "[ConfigChecker]")
@@ -380,6 +397,32 @@ TEST_CASE("validateErrorPagesDirective", "[ConfigChecker]")
 			 << "\tautoindex on" << std::endl
 			 << "\tupload off" << std::endl
 			 << "\t}" << std::endl
+			 << "}" << std::endl;
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Wrong testcase #9 (Invalid hostname on listen)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
+
+		file << "server {" << std::endl
+			 << "\tlisten not-localhost:8080" << std::endl
+			 << "\tserver_name webserv" << std::endl
+			 << "}" << std::endl;
+
+		file.close();
+		REQUIRE_THROWS(ConfigChecker("test.conf"));
+		remove("test.conf");
+	}
+	// Wrong testcase #10 (Invalid port number on listen)
+	{
+		std::fstream file("test.conf", std::ios::out | std::ios::trunc);
+
+		file << "server {" << std::endl
+			 << "\tlisten localhost:80800" << std::endl
+			 << "\tserver_name webserv" << std::endl
 			 << "}" << std::endl;
 
 		file.close();
