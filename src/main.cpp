@@ -2,18 +2,22 @@
 #include <cstdlib>
 #endif
 
-#include "ConfigChecker.hpp"
+#include "WebServ.hpp"
+#include <iostream>
 
 int main(int argc, char **argv)
 {
+	(void) argc;
+	(void) argv;
 	try
 	{
-		if (argc == 2 and std::string(argv[1]) == "-t")
-		{
-			ConfigChecker configChecker;
+		// if (argc == 2 and std::string(argv[1]) == "-t")
+		// {
+		// 	ConfigChecker configChecker;
 
-			std::cout << "The configuration file syntax is OK" << std::endl;
-		}
+		// 	std::cout << "The configuration file syntax is OK" << std::endl;
+		// }
+		WebServ::startServers();
 	}
 	catch (const std::exception &ex)
 	{
