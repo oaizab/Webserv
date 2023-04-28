@@ -302,8 +302,8 @@ void ConfigChecker::validateServerBlock()
 
 	while (std::getline(fin, line))
 	{
-		line = Utils::Trim(line);
 		std::replace(line.begin(), line.end(), '\t', ' ');
+		line = Utils::Trim(line);
 		if (line.empty() or line.front() == '#')
 		{
 			continue;
@@ -313,6 +313,10 @@ void ConfigChecker::validateServerBlock()
 			return;
 		}
 		tokens = Utils::Split(line, ' ');
+		if (tokens.empty())
+		{
+			continue;
+		}
 		tokens.front() == "listen"                 ? validateListenDirective(tokens)
 		: tokens.front() == "server_name"          ? validateServerNameDirective(tokens)
 		: tokens.front() == "error_pages"          ? validateErrorPagesBlock(tokens)
