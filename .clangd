@@ -45,5 +45,6 @@ Diagnostics:
 	  "hicpp-braces-around-statements",
 	  "cppcoreguidelines-avoid-non-const-global-variables",
 	  "cert-err58-cpp",
-	  "readability-convert-member-functions-to-static"
+	  "readability-convert-member-functions-to-static",
+	  "fuchsia-default-arguments-declarations"
     ]
