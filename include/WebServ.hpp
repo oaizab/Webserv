@@ -24,6 +24,7 @@ class WebServ
 	static void openSockets();
 	static void openSocket(std::map<std::pair<uint32_t, uint16_t>, int> &socketsOpen, Server *server);
 	static void run();
+	static void pollInit(std::set<int> &listenfds);
 
 	// Attributes
 	static std::vector<Server> servers;

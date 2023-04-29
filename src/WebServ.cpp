@@ -282,9 +282,8 @@ void WebServ::openSockets()
 		openSocket(socketsOpen, &servers[i]);
 }
 
-void WebServ::run()
+void WebServ::pollInit(std::set<int> &listenfds)
 {
-	std::set<int> listenfds;
 	openSockets();
 	for (std::map<int, std::vector<Server *> >::iterator it = serversBySocket.begin(); it != serversBySocket.end(); ++it)
 	{
@@ -296,6 +295,12 @@ void WebServ::run()
 			.revents = 0
 		});
 	}
+}
+
+void WebServ::run()
+{
+	std::set<int> listenfds;
+	pollInit(listenfds);
 	while (true)
 	{
 		std::string line;
