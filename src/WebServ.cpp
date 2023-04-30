@@ -11,10 +11,12 @@
 #include <string>
 #include <sys/_types/_size_t.h>
 #include <sys/_types/_ssize_t.h>
+#include <sys/fcntl.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
+#include <fcntl.h>
 
 std::vector<Server> WebServ::servers;
 std::map<int, std::vector<Server *> > WebServ::serversBySocket;
@@ -256,6 +258,13 @@ void WebServ::openSocket(std::map<std::pair<uint32_t, uint16_t>, int> &socketsOp
 				exit(1);
 			}
 
+			if (fcntl(socketFd, F_SETFL, O_NONBLOCK) == -1)
+			{
+				std::cerr << "fcntl error: " << strerror(errno) << std::endl;
+				exit(1);
+			}
+
+
 			if (bind(socketFd, result->ai_addr, result->ai_addrlen) == -1)
 			{
 				std::cerr << "bind error: " << strerror(errno) << std::endl;
@@ -325,6 +334,13 @@ void WebServ::run()
 						std::cerr << "accept error: " << strerror(errno) << std::endl;
 						exit(1);
 					}
+
+					if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1)
+					{
+						std::cerr << "fcntl error: " << strerror(errno) << std::endl;
+						exit(1);
+					}
+
 					serversBySocket[clientFd] = serversBySocket[pollfds[i].fd];
 					pollfds.push_back((struct pollfd) {
 						.fd = clientFd,
