@@ -27,3 +27,15 @@ TEST_CASE("Split", "[Utils]")
 	REQUIRE(Utils::Split("hello world", 'x').size() == 1);
 	REQUIRE(Utils::Split("hello world", 'x').front() == "hello world");
 }
+
+TEST_CASE("reqSplit", "[Utils]")
+{
+	const std::string EXPECTED_ARRAY[] = { "GET / HTTP/1.1\r\n", "Ho" };
+	const std::vector<std::string> EXPECTED(EXPECTED_ARRAY, EXPECTED_ARRAY + 2);
+
+	REQUIRE(Utils::reqSplit("GET / HTTP/1.1\r\nHo") == EXPECTED);
+
+	const std::string NOT_EXPECTED_ARRAY[] = { "GET / HTTP/1.1\r", "Ho" };
+	const std::vector<std::string> NOT_EXPECTED(EXPECTED_ARRAY, EXPECTED_ARRAY + 2);
+	REQUIRE(Utils::reqSplit("GET / HTTP/1.1\r\nHo") == NOT_EXPECTED);
+}
