@@ -28,9 +28,10 @@ class Request
 		State _state;
 		bool _isStartLineParsed;
 		bool _isHostParsed;
-		bool _chuncked;
+		bool _chunked;
 		size_t _contentLength;
 		bool _isContentLengthParsed;
+		bool _keepAlive;
 		std::map<std::string, std::string> _headers;
 
 		bool parseStartLine(const std::string &line);

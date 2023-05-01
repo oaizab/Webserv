@@ -1,15 +1,18 @@
 #include "Request.hpp"
 #include "Utils.hpp"
-#include <sys/_types/_size_t.h>
+#include <algorithm>
+#include <cctype>
+#include <string>
 
 Request::Request()
 {
 	_state = START_LINE;
 	_isHostParsed = false;
 	_isStartLineParsed = false;
-	_chuncked = false;
+	_chunked = false;
 	_contentLength = 0;
 	_isContentLengthParsed = false;
+	_keepAlive = false;
 }
 
 bool Request::readRequest(const std::string &request)
@@ -98,3 +101,56 @@ bool Request::parseVersion(const std::string &line)
 	return line == "HTTP/1.1" or line == "HTTP/1.1\r\n" or line == "HTTP/1.1\n";
 }
 
+bool Request::parseHeader(const std::string &line)
+{
+	if (line == "\r\n" or line == "\n")
+	{
+		return _isHostParsed;
+	}
+	std::vector<std::string> tokens = Utils::Split(line, ':');
+	if (tokens.size() != 2)
+		return false;
+	std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+	if (tokens[0] == "host")
+	{
+		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
+		std::string val = Utils::Trim(tokens[1]);
+	}
+	else if (tokens[0] == "content-length")
+	{
+		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
+		std::string val = Utils::Trim(tokens[1]);
+		if (_isContentLengthParsed)
+			return false;
+		_contentLength = std::stoi(val);
+		_isContentLengthParsed = true;
+	}
+	else if (tokens[0] == "transfer-encoding")
+	{
+		if (_isContentLengthParsed)
+			return false;
+		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
+		std::string val = Utils::Trim(tokens[1]);
+		if (val == "chunked")
+			_chunked = true;
+		else
+			return false;
+	}
+	else if (tokens[0] == "connection")
+	{
+		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
+		std::string val = Utils::Trim(tokens[1]);
+		if (val == "close")
+			_keepAlive = false;
+		else if (val == "keep-alive")
+			_keepAlive = true;
+		else
+			return false;
+	}
+	else
+	{
+		if (tokens[0].find(' ') != std::string::npos or tokens[0].find('\t') != std::string::npos)
+			return false;
+	}
+	return true;
+}
