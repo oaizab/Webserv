@@ -24,6 +24,7 @@ bool Request::readRequest(const std::string &request)
 {
 	_request += request;
 	std::vector<std::string> lines = Utils::reqSplit(_request);
+	_request.clear();
 	if (lines.empty() and (not _isStartLineParsed or not _isHostParsed))
 		return false;
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); ++it)
@@ -184,11 +185,19 @@ bool Request::parseHeader(const std::string &line)
 	{
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
-		_host = val;
+		if (_isHostParsed)
+			return false;
+		if (Utils::endsWith(val, "\r\n"))
+			_host = val.substr(0, val.length() - 2);
+		else if (Utils::endsWith(val, "\n"))
+			_host = val.substr(0, val.length() - 1);
+		else
+			_host = val;
 		_isHostParsed = true;
 	}
 	else if (tokens[0] == "content-length")
 	{
+		// TODO(oaizab): Check if content-length is valid
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isContentLengthParsed)
@@ -201,7 +210,12 @@ bool Request::parseHeader(const std::string &line)
 		if (_isContentLengthParsed)
 			return false;
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
-		std::string val = Utils::Trim(tokens[1]);
+		std::string val = tokens[1];
+		if (Utils::endsWith(val, "\r\n"))
+			val = val.substr(0, val.length() - 2);
+		else if (Utils::endsWith(val, "\n"))
+			val = val.substr(0, val.length() - 1);
+		val = Utils::Trim(val);
 		if (val == "chunked")
 			_chunked = true;
 		else

@@ -31,7 +31,7 @@ TEST_CASE("Valid requests", "[Request]")
 		REQUIRE(req.readRequest("POST / HTTP/1.1\r\n"));
 		REQUIRE(req.readRequest("Host: localhost\r\n"));
 		REQUIRE(req.readRequest("Content-Type: text/plain\r\n"));
-		REQUIRE(req.readRequest("Transfer-Encoding: chunked\r\n"));
+		REQUIRE(req.readRequest("Transfer-Encoding: chunked   \r\n"));
 		REQUIRE(req.readRequest("\r\n"));
 		REQUIRE(req.readRequest("4\r\n"));
 		REQUIRE(req.readRequest("Wiki\r\n"));
@@ -55,7 +55,8 @@ TEST_CASE("Invalid requests", "[Request]")
 	{
 		Request req;
 
-		REQUIRE_FALSE(req.readRequest("GET / HTTP/2.0"));
+		REQUIRE(req.readRequest("GET / HTTP/2.0"));
+		REQUIRE_FALSE(req.readRequest("\r\n"));
 	}
 	{
 		Request req;
