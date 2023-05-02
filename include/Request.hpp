@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 
+#include "statusCodes.hpp"
+
 class Request
 {
 	public:
@@ -38,6 +40,8 @@ class Request
 		size_t _chunkSize;
 		std::string _chunkContent;
 		bool _chunkSizeParsed;
+
+		int _status;
 
 		bool parseStartLine(const std::string &line);
 		bool parseHeader(const std::string &line);
