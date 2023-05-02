@@ -94,4 +94,18 @@ TEST_CASE("Invalid requests", "[Request]")
 		REQUIRE(req.readRequest("4\r\n"));
 		REQUIRE_FALSE(req.readRequest("More than 4 characters\r\n"));
 	}
+	{
+		Request req;
+
+		REQUIRE(req.readRequest("POST / HTTP/1.1\r\n"));
+		REQUIRE(req.readRequest("Host: localhost\r\n"));
+		REQUIRE_FALSE(req.readRequest("Content-Length: invalidLength\r\n"));
+	}
+	{
+		Request req;
+
+		REQUIRE(req.readRequest("POST / HTTP/1.1\r\n"));
+		REQUIRE(req.readRequest("Host: localhost\r\n"));
+		REQUIRE_FALSE(req.readRequest("Content-Length: \r\n"));
+	}
 }

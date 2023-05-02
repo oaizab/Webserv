@@ -4,9 +4,6 @@
 #include <cctype>
 #include <string>
 
-// WARN: Remove this
-#include <iostream>
-
 Request::Request()
 {
 	_state = START_LINE;
@@ -198,10 +195,17 @@ bool Request::parseHeader(const std::string &line)
 	}
 	else if (tokens[0] == "content-length")
 	{
-		// TODO(oaizab): #5 Check if content-length is valid
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isContentLengthParsed)
+			return false;
+		if (Utils::endsWith(val, "\n"))
+		{
+			val.pop_back();
+			if (Utils::endsWith(val, "\r"))
+				val.pop_back();
+		}
+		if (val.empty() or val.find_first_not_of("0123456789") != std::string::npos)
 			return false;
 		_contentLength = std::stoi(val);
 		_isContentLengthParsed = true;
