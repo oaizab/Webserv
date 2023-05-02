@@ -184,6 +184,8 @@ bool Request::parseHeader(const std::string &line)
 	{
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
+		_host = val;
+		_isHostParsed = true;
 	}
 	else if (tokens[0] == "content-length")
 	{
