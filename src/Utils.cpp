@@ -47,7 +47,7 @@ std::vector<std::string> Utils::reqSplit(const std::string &str)
 
 	while (end != std::string::npos)
 	{
-		if (end != start)
+		if (end >= start)
 		{
 			tokens.push_back(str.substr(start, end - start + 1));
 		}
