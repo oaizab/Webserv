@@ -119,6 +119,7 @@ TEST_NAMES := ConfigChecker Utils WebServ
 # Note: This can be omitted if the unit has no external dependencies
 ConfigChecker_DEP := Exception Utils
 WebServ_DEP := ConfigChecker Exception Utils Server Location
+Request_DEP := Utils
 
 # ******************************* Test Targets *********************************
 testall:
