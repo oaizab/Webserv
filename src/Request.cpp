@@ -4,6 +4,9 @@
 #include <cctype>
 #include <string>
 
+// WARN: Remove this
+#include <iostream>
+
 Request::Request()
 {
 	_state = START_LINE;
@@ -13,6 +16,8 @@ Request::Request()
 	_contentLength = 0;
 	_isContentLengthParsed = false;
 	_keepAlive = false;
+	_chunkSize = 0;
+	_chunkSizeParsed = false;
 }
 
 bool Request::readRequest(const std::string &request)
@@ -99,6 +104,70 @@ bool Request::parseUri(const std::string &line)
 bool Request::parseVersion(const std::string &line)
 {
 	return line == "HTTP/1.1" or line == "HTTP/1.1\r\n" or line == "HTTP/1.1\n";
+}
+
+bool Request::parseBody(const std::string &line)
+{
+	if (_chunked)
+	{
+		// NOTE: Chunked request
+		if (not _chunkSizeParsed)
+		{
+			_chunkSizeStr.append(line);
+			if (Utils::endsWith(_chunkSizeStr, "\n"))
+			{
+				_chunkSizeStr.pop_back();
+				if (Utils::endsWith(_chunkSizeStr, "\r"))
+					_chunkSizeStr.pop_back();
+				if (
+					_chunkSizeStr.empty()
+					or _chunkSizeStr.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos
+				)
+				{
+					// NOTE: 400 Bad request
+					return false;
+				}
+				_chunkSize = std::stoul(_chunkSizeStr, NULL, 16);
+				_chunkSizeStr.clear();
+				_chunkSizeParsed = true;
+			}
+		}
+		else
+		{
+			uint8_t prefixLength = 0;
+
+			_chunkContent.append(line);
+			if (Utils::endsWith(_chunkContent, "\r\n"))
+				prefixLength = 2;
+			else if (Utils::endsWith(_chunkContent, "\n"))
+				prefixLength = 1;
+			else
+				return true;
+			if (_chunkContent.length() > _chunkSize + prefixLength)
+			{
+				// NOTE: 400 Bad request
+				return false;
+			}
+			if (_chunkContent.length() == _chunkSize + prefixLength)
+			{
+				_chunkContent.erase(_chunkContent.length() - prefixLength); // Remove CRLF or LF
+				_body.append(_chunkContent);
+				_chunkSize = 0;
+				_chunkSizeParsed = false;
+				_chunkContent.clear();
+			}
+		}
+	}
+	else
+	{
+		_body.append(line);
+		if (_body.length() > _contentLength)
+		{
+			// NOTE: 400 Bad request
+			return false;
+		}
+	}
+	return true;
 }
 
 bool Request::parseHeader(const std::string &line)

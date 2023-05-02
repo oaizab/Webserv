@@ -34,6 +34,11 @@ class Request
 		bool _keepAlive;
 		std::map<std::string, std::string> _headers;
 
+		std::string _chunkSizeStr;
+		size_t _chunkSize;
+		std::string _chunkContent;
+		bool _chunkSizeParsed;
+
 		bool parseStartLine(const std::string &line);
 		bool parseHeader(const std::string &line);
 		bool parseBody(const std::string &line);
