@@ -21,7 +21,7 @@ TEST_CASE("Valid requests", "[Request]")
 		REQUIRE(req.readRequest("POST /users HTTP/1.1\r\n"));
 		REQUIRE(req.readRequest("Host: localhost\r\n"));
 		REQUIRE(req.readRequest("Content-Type: application/json\r\n"));
-		REQUIRE(req.readRequest("Content-Length: 13\r\n"));
+		REQUIRE(req.readRequest("Content-Length: 15\r\n"));
 		REQUIRE(req.readRequest("\r\n"));
 		REQUIRE(req.readRequest("{\"name\":\"John\"}"));
 	}

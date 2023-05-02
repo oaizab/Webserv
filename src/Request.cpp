@@ -175,6 +175,7 @@ bool Request::parseHeader(const std::string &line)
 {
 	if (line == "\r\n" or line == "\n")
 	{
+		_state = BODY;
 		return _isHostParsed;
 	}
 	std::vector<std::string> tokens = Utils::Split(line, ':');
