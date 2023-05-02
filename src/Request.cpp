@@ -15,6 +15,7 @@ Request::Request()
 	_keepAlive = false;
 	_chunkSize = 0;
 	_chunkSizeParsed = false;
+	_status = 0;
 }
 
 bool Request::readRequest(const std::string &request)
@@ -30,6 +31,13 @@ bool Request::readRequest(const std::string &request)
 		{
 			_request = *it;
 			break;
+		}
+		if (_state != BODY)
+		{
+			if (it->back() == '\n')
+				it->pop_back();
+			if (it->back() == '\r')
+				it->pop_back();
 		}
 		if (_state == START_LINE)
 		{
@@ -56,7 +64,7 @@ bool Request::parseStartLine(const std::string &line)
 	if (tmp.front() == ' ')
 		return false;
 	std::vector<std::string> tokens = Utils::Split(tmp, ' ');
-	if (tokens.size() != 3 or (tokens.size() == 4 and (tokens.back() == "\r\n" or tokens.back() == "\n")))
+	if (tokens.size() != 3)
 		return false;
 	if (not parseMethod(tokens[0]))
 		return false;
@@ -101,7 +109,7 @@ bool Request::parseUri(const std::string &line)
 
 bool Request::parseVersion(const std::string &line)
 {
-	return line == "HTTP/1.1" or line == "HTTP/1.1\r\n" or line == "HTTP/1.1\n";
+	return line == "HTTP/1.1";
 }
 
 bool Request::parseBody(const std::string &line)
@@ -170,7 +178,7 @@ bool Request::parseBody(const std::string &line)
 
 bool Request::parseHeader(const std::string &line)
 {
-	if (line == "\r\n" or line == "\n")
+	if (line.empty())
 	{
 		_state = BODY;
 		return _isHostParsed;
@@ -185,12 +193,7 @@ bool Request::parseHeader(const std::string &line)
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isHostParsed)
 			return false;
-		if (Utils::endsWith(val, "\r\n"))
-			_host = val.substr(0, val.length() - 2);
-		else if (Utils::endsWith(val, "\n"))
-			_host = val.substr(0, val.length() - 1);
-		else
-			_host = val;
+		_host = val;
 		_isHostParsed = true;
 	}
 	else if (tokens[0] == "content-length")
@@ -199,12 +202,6 @@ bool Request::parseHeader(const std::string &line)
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isContentLengthParsed)
 			return false;
-		if (Utils::endsWith(val, "\n"))
-		{
-			val.pop_back();
-			if (Utils::endsWith(val, "\r"))
-				val.pop_back();
-		}
 		if (val.empty() or val.find_first_not_of("0123456789") != std::string::npos)
 			return false;
 		_contentLength = std::stoi(val);
@@ -216,10 +213,6 @@ bool Request::parseHeader(const std::string &line)
 			return false;
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = tokens[1];
-		if (Utils::endsWith(val, "\r\n"))
-			val = val.substr(0, val.length() - 2);
-		else if (Utils::endsWith(val, "\n"))
-			val = val.substr(0, val.length() - 1);
 		val = Utils::Trim(val);
 		if (val == "chunked")
 			_chunked = true;
