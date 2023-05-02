@@ -1,5 +1,6 @@
 #include "Request.hpp"
 #include "Utils.hpp"
+#include "statusCodes.hpp"
 #include <algorithm>
 #include <cctype>
 #include <string>
@@ -24,7 +25,7 @@ bool Request::readRequest(const std::string &request)
 	std::vector<std::string> lines = Utils::reqSplit(_request);
 	_request.clear();
 	if (lines.empty() and (not _isStartLineParsed or not _isHostParsed))
-		return false;
+		return false; // NOTE: Check if request is empty
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
 		if (it->back() != '\n' and _state != BODY)
@@ -61,17 +62,29 @@ bool Request::readRequest(const std::string &request)
 bool Request::parseStartLine(const std::string &line)
 {
 	std::string tmp = line;
-	if (tmp.front() == ' ')
+	if (tmp.front() == ' ' or tmp.front() == '\t')
+	{
+		_status = BAD_REQUEST;
 		return false;
+	}
 	std::vector<std::string> tokens = Utils::Split(tmp, ' ');
 	if (tokens.size() != 3)
+	{
+		_status = BAD_REQUEST;
 		return false;
+	}
 	if (not parseMethod(tokens[0]))
 		return false;
 	if (not parseUri(tokens[1]))
+	{
+		_status = BAD_REQUEST;
 		return false;
+	}
 	if (not parseVersion(tokens[2]))
+	{
+		_status = HTTP_VERSION_NOT_SUPPORTED;
 		return false;
+	}
 	_state = HEADER;
 	_isStartLineParsed = true;
 	return true;
@@ -86,7 +99,10 @@ bool Request::parseMethod(const std::string &line)
 	else if (line == "DELETE")
 		_method = "DELETE";
 	else
+	{
+		_status = NOT_IMPLEMENTED;
 		return false;
+	}
 	return true;
 }
 
@@ -180,19 +196,54 @@ bool Request::parseHeader(const std::string &line)
 {
 	if (line.empty())
 	{
-		_state = BODY;
-		return _isHostParsed;
+		if (_method == "POST")
+		{
+			if (_isContentLengthParsed and _contentLength == 0)
+			{
+				if (_isHostParsed)
+					_status = OK;
+				else
+					_status = BAD_REQUEST;
+				return false;
+			}
+			if (not _chunked and not _isContentLengthParsed)
+			{
+				_status = LENGTH_REQUIRED;
+				return false;
+			}
+			_state = BODY;
+			return _isHostParsed;
+		}
+		if (_isHostParsed)
+			_status = OK;
+		else
+			_status = BAD_REQUEST;
+		return false;
 	}
 	std::vector<std::string> tokens = Utils::Split(line, ':');
-	if (tokens.size() != 2)
-		return false;
 	std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+	if (tokens.size() != 2)
+	{
+		if (tokens[0] != "host" or tokens.size() == 1)
+		{
+			_status = BAD_REQUEST;
+			return false;
+		}
+		if (tokens[0] == "host" and tokens.size() != 3)
+		{
+			_status = BAD_REQUEST;
+			return false;
+		}
+	}
 	if (tokens[0] == "host")
 	{
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isHostParsed)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 		_host = val;
 		_isHostParsed = true;
 	}
@@ -201,23 +252,35 @@ bool Request::parseHeader(const std::string &line)
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isContentLengthParsed)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 		if (val.empty() or val.find_first_not_of("0123456789") != std::string::npos)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 		_contentLength = std::stoi(val);
 		_isContentLengthParsed = true;
 	}
 	else if (tokens[0] == "transfer-encoding")
 	{
 		if (_isContentLengthParsed)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = tokens[1];
 		val = Utils::Trim(val);
 		if (val == "chunked")
 			_chunked = true;
 		else
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 	}
 	else if (tokens[0] == "connection")
 	{
@@ -228,12 +291,18 @@ bool Request::parseHeader(const std::string &line)
 		else if (val == "keep-alive")
 			_keepAlive = true;
 		else
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 	}
 	else
 	{
 		if (tokens[0].find(' ') != std::string::npos or tokens[0].find('\t') != std::string::npos)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 	}
 	return true;
 }
