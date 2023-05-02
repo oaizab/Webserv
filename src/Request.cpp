@@ -1,5 +1,6 @@
 #include "Request.hpp"
 #include "Utils.hpp"
+#include "statusCodes.hpp"
 #include <algorithm>
 #include <cctype>
 #include <string>
@@ -15,6 +16,7 @@ Request::Request()
 	_keepAlive = false;
 	_chunkSize = 0;
 	_chunkSizeParsed = false;
+	_status = 0;
 }
 
 bool Request::readRequest(const std::string &request)
@@ -23,13 +25,20 @@ bool Request::readRequest(const std::string &request)
 	std::vector<std::string> lines = Utils::reqSplit(_request);
 	_request.clear();
 	if (lines.empty() and (not _isStartLineParsed or not _isHostParsed))
-		return false;
+		return false; // NOTE: Check if request is empty
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
 		if (it->back() != '\n' and _state != BODY)
 		{
 			_request = *it;
 			break;
+		}
+		if (_state != BODY)
+		{
+			if (it->back() == '\n')
+				it->pop_back();
+			if (it->back() == '\r')
+				it->pop_back();
 		}
 		if (_state == START_LINE)
 		{
@@ -53,17 +62,29 @@ bool Request::readRequest(const std::string &request)
 bool Request::parseStartLine(const std::string &line)
 {
 	std::string tmp = line;
-	if (tmp.front() == ' ')
+	if (tmp.front() == ' ' or tmp.front() == '\t')
+	{
+		_status = BAD_REQUEST;
 		return false;
+	}
 	std::vector<std::string> tokens = Utils::Split(tmp, ' ');
-	if (tokens.size() != 3 or (tokens.size() == 4 and (tokens.back() == "\r\n" or tokens.back() == "\n")))
+	if (tokens.size() != 3)
+	{
+		_status = BAD_REQUEST;
 		return false;
+	}
 	if (not parseMethod(tokens[0]))
 		return false;
 	if (not parseUri(tokens[1]))
+	{
+		_status = BAD_REQUEST;
 		return false;
+	}
 	if (not parseVersion(tokens[2]))
+	{
+		_status = HTTP_VERSION_NOT_SUPPORTED;
 		return false;
+	}
 	_state = HEADER;
 	_isStartLineParsed = true;
 	return true;
@@ -78,7 +99,10 @@ bool Request::parseMethod(const std::string &line)
 	else if (line == "DELETE")
 		_method = "DELETE";
 	else
+	{
+		_status = NOT_IMPLEMENTED;
 		return false;
+	}
 	return true;
 }
 
@@ -101,7 +125,7 @@ bool Request::parseUri(const std::string &line)
 
 bool Request::parseVersion(const std::string &line)
 {
-	return line == "HTTP/1.1" or line == "HTTP/1.1\r\n" or line == "HTTP/1.1\n";
+	return line == "HTTP/1.1";
 }
 
 bool Request::parseBody(const std::string &line)
@@ -169,27 +193,57 @@ bool Request::parseBody(const std::string &line)
 
 bool Request::parseHeader(const std::string &line)
 {
-	if (line == "\r\n" or line == "\n")
+	if (line.empty())
 	{
-		_state = BODY;
-		return _isHostParsed;
+		if (_method == "POST")
+		{
+			if (_isContentLengthParsed and _contentLength == 0)
+			{
+				if (_isHostParsed)
+					_status = OK;
+				else
+					_status = BAD_REQUEST;
+				return false;
+			}
+			if (not _chunked and not _isContentLengthParsed)
+			{
+				_status = LENGTH_REQUIRED;
+				return false;
+			}
+			_state = BODY;
+			return _isHostParsed;
+		}
+		if (_isHostParsed)
+			_status = OK;
+		else
+			_status = BAD_REQUEST;
+		return false;
 	}
 	std::vector<std::string> tokens = Utils::Split(line, ':');
-	if (tokens.size() != 2)
-		return false;
 	std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+	if (tokens.size() != 2)
+	{
+		if (tokens[0] != "host" or tokens.size() == 1)
+		{
+			_status = BAD_REQUEST;
+			return false;
+		}
+		if (tokens[0] == "host" and tokens.size() != 3)
+		{
+			_status = BAD_REQUEST;
+			return false;
+		}
+	}
 	if (tokens[0] == "host")
 	{
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isHostParsed)
+		{
+			_status = BAD_REQUEST;
 			return false;
-		if (Utils::endsWith(val, "\r\n"))
-			_host = val.substr(0, val.length() - 2);
-		else if (Utils::endsWith(val, "\n"))
-			_host = val.substr(0, val.length() - 1);
-		else
-			_host = val;
+		}
+		_host = val;
 		_isHostParsed = true;
 	}
 	else if (tokens[0] == "content-length")
@@ -197,33 +251,35 @@ bool Request::parseHeader(const std::string &line)
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isContentLengthParsed)
-			return false;
-		if (Utils::endsWith(val, "\n"))
 		{
-			val.pop_back();
-			if (Utils::endsWith(val, "\r"))
-				val.pop_back();
+			_status = BAD_REQUEST;
+			return false;
 		}
 		if (val.empty() or val.find_first_not_of("0123456789") != std::string::npos)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 		_contentLength = std::stoi(val);
 		_isContentLengthParsed = true;
 	}
 	else if (tokens[0] == "transfer-encoding")
 	{
 		if (_isContentLengthParsed)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = tokens[1];
-		if (Utils::endsWith(val, "\r\n"))
-			val = val.substr(0, val.length() - 2);
-		else if (Utils::endsWith(val, "\n"))
-			val = val.substr(0, val.length() - 1);
 		val = Utils::Trim(val);
 		if (val == "chunked")
 			_chunked = true;
 		else
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 	}
 	else if (tokens[0] == "connection")
 	{
@@ -234,12 +290,18 @@ bool Request::parseHeader(const std::string &line)
 		else if (val == "keep-alive")
 			_keepAlive = true;
 		else
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 	}
 	else
 	{
 		if (tokens[0].find(' ') != std::string::npos or tokens[0].find('\t') != std::string::npos)
+		{
+			_status = BAD_REQUEST;
 			return false;
+		}
 	}
 	return true;
 }

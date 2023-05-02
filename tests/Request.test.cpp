@@ -8,12 +8,12 @@ TEST_CASE("Valid requests", "[Request]")
 	{
 		Request req;
 
-		REQUIRE(req.readRequest("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"));
+		REQUIRE_FALSE(req.readRequest("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"));
 	}
 	{
 		Request req;
 
-		REQUIRE(req.readRequest("DELETE /file.txt HTTP/1.1\nHost: localhost\n\n"));
+		REQUIRE_FALSE(req.readRequest("DELETE /file.txt HTTP/1.1\nHost: localhost\n\n"));
 	}
 	{
 		Request req;

@@ -30,14 +30,21 @@ TEST_CASE("Split", "[Utils]")
 
 TEST_CASE("reqSplit", "[Utils]")
 {
-	const std::string EXPECTED_ARRAY[] = { "GET / HTTP/1.1\r\n", "Ho" };
-	const std::vector<std::string> EXPECTED(EXPECTED_ARRAY, EXPECTED_ARRAY + 2);
-
-	REQUIRE(Utils::reqSplit("GET / HTTP/1.1\r\nHo") == EXPECTED);
-
-	const std::string NOT_EXPECTED_ARRAY[] = { "GET / HTTP/1.1\r", "Ho" };
-	const std::vector<std::string> NOT_EXPECTED(EXPECTED_ARRAY, EXPECTED_ARRAY + 2);
-	REQUIRE(Utils::reqSplit("GET / HTTP/1.1\r\nHo") == NOT_EXPECTED);
+	{
+		const std::string EXPECTED_ARRAY[] = { "GET / HTTP/1.1\r\n", "Ho" };
+		const std::vector<std::string> EXPECTED(EXPECTED_ARRAY, EXPECTED_ARRAY + 2);
+		REQUIRE(Utils::reqSplit("GET / HTTP/1.1\r\nHo") == EXPECTED);
+	}
+	{
+		const std::string EXPECTED_ARRAY[] = { "\n", "\n" };
+		const std::vector<std::string> EXPECTED(EXPECTED_ARRAY, EXPECTED_ARRAY + 2);
+		REQUIRE(Utils::reqSplit("\n\n") == EXPECTED);
+	}
+	{
+		const std::string NOT_EXPECTED_ARRAY[] = { "GET / HTTP/1.1\r", "Ho" };
+		const std::vector<std::string> NOT_EXPECTED(NOT_EXPECTED_ARRAY, NOT_EXPECTED_ARRAY + 2);
+		REQUIRE(Utils::reqSplit("GET / HTTP/1.1\r\nHo") != NOT_EXPECTED);
+	}
 }
 
 TEST_CASE("endsWith", "[Utils]")
