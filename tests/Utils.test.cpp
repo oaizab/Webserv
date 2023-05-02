@@ -39,3 +39,10 @@ TEST_CASE("reqSplit", "[Utils]")
 	const std::vector<std::string> NOT_EXPECTED(EXPECTED_ARRAY, EXPECTED_ARRAY + 2);
 	REQUIRE(Utils::reqSplit("GET / HTTP/1.1\r\nHo") == NOT_EXPECTED);
 }
+
+TEST_CASE("endsWith", "[Utils]")
+{
+	REQUIRE(Utils::endsWith("hello world", "world") == true);
+	REQUIRE(Utils::endsWith("hello world", "world!") == false);
+	REQUIRE(Utils::endsWith("hello world", "") == true);
+}

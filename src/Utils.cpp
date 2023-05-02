@@ -63,3 +63,15 @@ std::vector<std::string> Utils::reqSplit(const std::string &str)
 	}
 	return tokens;
 }
+
+bool Utils::endsWith(const std::string &str, const std::string &suffix)
+{
+	if (str.length() < suffix.length())
+	{
+		return false;
+	}
+
+	const std::string end = str.substr(str.length() - suffix.length());
+
+	return end == suffix;
+}
