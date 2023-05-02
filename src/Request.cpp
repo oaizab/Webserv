@@ -108,7 +108,6 @@ bool Request::parseBody(const std::string &line)
 {
 	if (_chunked)
 	{
-		// NOTE: Chunked request
 		if (not _chunkSizeParsed)
 		{
 			_chunkSizeStr.append(line);
@@ -122,7 +121,7 @@ bool Request::parseBody(const std::string &line)
 					or _chunkSizeStr.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos
 				)
 				{
-					// NOTE: 400 Bad request
+					_status = BAD_REQUEST;
 					return false;
 				}
 				_chunkSize = std::stoul(_chunkSizeStr, NULL, 16);
@@ -143,7 +142,7 @@ bool Request::parseBody(const std::string &line)
 				return true;
 			if (_chunkContent.length() > _chunkSize + prefixLength)
 			{
-				// NOTE: 400 Bad request
+				_status = BAD_REQUEST;
 				return false;
 			}
 			if (_chunkContent.length() == _chunkSize + prefixLength)
@@ -161,7 +160,7 @@ bool Request::parseBody(const std::string &line)
 		_body.append(line);
 		if (_body.length() > _contentLength)
 		{
-			// NOTE: 400 Bad request
+			_status = BAD_REQUEST;
 			return false;
 		}
 	}
