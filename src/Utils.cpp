@@ -75,3 +75,15 @@ bool Utils::endsWith(const std::string &str, const std::string &suffix)
 
 	return end == suffix;
 }
+
+bool Utils::startsWith(const std::string &str, const std::string &prefix)
+{
+	if (str.length() < prefix.length())
+	{
+		return false;
+	}
+
+	const std::string start = str.substr(0, prefix.length());
+
+	return start == prefix;
+}

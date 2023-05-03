@@ -53,3 +53,10 @@ TEST_CASE("endsWith", "[Utils]")
 	REQUIRE(Utils::endsWith("hello world", "world!") == false);
 	REQUIRE(Utils::endsWith("hello world", "") == true);
 }
+
+TEST_CASE("startsWith", "[Utils]")
+{
+	REQUIRE(Utils::startsWith("hello world", "hello") == true);
+	REQUIRE(Utils::startsWith("hello world", "hello!") == false);
+	REQUIRE(Utils::startsWith("hello world", "") == true);
+}
