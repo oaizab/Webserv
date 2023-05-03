@@ -23,5 +23,5 @@ class Response
 		void error(int status);
 		void error(int status, Location &location);
 		static std::string getMessageByStatus(int status);
-
+		Location &matchUri(const std::string &uri, const Server &server);
 };

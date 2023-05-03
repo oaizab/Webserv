@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include "Utils.hpp"
 
 std::string getMessageByStatus(int status)
 {
@@ -48,4 +49,28 @@ void Response::error(int status)
 	_contentLength = _body.length();
 	_contentType = "text/html";
 	_keepAlive = false;
+}
+
+Location &Response::matchUri(const std::string &uri, const Server &server)
+{
+	const std::vector<Location> &locations = server.locations;
+	Location *bestMatch = NULL;
+
+	assert(not locations.empty());
+
+	typedef std::vector<Location>::const_iterator locationIterator;
+
+	for (locationIterator it = locations.begin(); it != locations.end(); ++it)
+	{
+		const std::string &locationUri = it->uri;
+
+		if (Utils::startsWith(uri, locationUri))
+		{
+			if (bestMatch == NULL or locationUri.length() > bestMatch->uri.length())
+			{
+				bestMatch = const_cast<Location *>(&(*it));
+			}
+		}
+	}
+	return *bestMatch;
 }
