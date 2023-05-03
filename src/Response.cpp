@@ -1,7 +1,11 @@
 #include "Response.hpp"
 #include "Utils.hpp"
+#include "Server.hpp"
+#include <fstream>
+#include <sys/unistd.h>
+#include <unistd.h>
 
-std::string getMessageByStatus(int status)
+std::string Response::getMessageByStatus(int status)
 {
 	switch (status)
 	{
@@ -73,4 +77,28 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 		}
 	}
 	return *bestMatch;
+}
+
+void Response::error(int status, Location &location, Server &server)
+{
+	std::map<std::string, std::string>::iterator iter = server.errorPages.find(std::to_string(status));
+	if (iter != server.errorPages.end())
+	{
+		std::string errorPage = iter->second;
+		std::string path = location.root + errorPage;
+		if (access(path.c_str(), F_OK) == 0)
+		{
+			_status = status;
+			std::ifstream ifs(path.c_str());
+			std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+			_body = str;
+			_contentLength = _body.length();
+			_contentType = "text/html";
+			_keepAlive = false;
+		}
+		else
+			error(status);
+	}
+	else
+		error(status);
 }

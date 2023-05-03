@@ -21,7 +21,7 @@ class Response
 		size_t _contentLength;
 
 		void error(int status);
-		void error(int status, Location &location);
+		void error(int status, Location &location, Server &server);
 		static std::string getMessageByStatus(int status);
 		Location &matchUri(const std::string &uri, const Server &server);
 };
