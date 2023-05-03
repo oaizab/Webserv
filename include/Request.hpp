@@ -13,6 +13,13 @@ class Request
 
 		bool readRequest(const std::string &request);
 
+		const std::string &method() const;
+		const std::string &uri() const;
+		const std::string &body() const;
+		const std::string &host() const;
+		bool keepAlive() const;
+		int status() const;
+
 	private:
 		enum State
 		{
@@ -34,7 +41,6 @@ class Request
 		size_t _contentLength;
 		bool _isContentLengthParsed;
 		bool _keepAlive;
-		std::map<std::string, std::string> _headers;
 
 		std::string _chunkSizeStr;
 		size_t _chunkSize;

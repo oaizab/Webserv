@@ -305,3 +305,33 @@ bool Request::parseHeader(const std::string &line)
 	}
 	return true;
 }
+
+const std::string &Request::method() const
+{
+	return _method;
+}
+
+const std::string &Request::uri() const
+{
+	return _uri;
+}
+
+const std::string &Request::body() const
+{
+	return _body;
+}
+
+const std::string &Request::host() const
+{
+	return _host;
+}
+
+bool Request::keepAlive() const
+{
+	return _keepAlive;
+}
+
+int Request::status() const
+{
+	return _status;
+}
