@@ -1,6 +1,6 @@
 #include "Response.hpp"
-#include "Utils.hpp"
 #include "Server.hpp"
+#include "Utils.hpp"
 #include <fstream>
 #include <sys/unistd.h>
 #include <unistd.h>
