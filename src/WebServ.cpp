@@ -5,6 +5,7 @@
 #include "Utils.hpp"
 #include <algorithm>
 #include <cstdio>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
 #include <netdb.h>
@@ -16,7 +17,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
-#include <fcntl.h>
 
 std::vector<Server> WebServ::servers;
 std::map<int, std::vector<Server *> > WebServ::serversBySocket;
