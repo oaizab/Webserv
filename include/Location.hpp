@@ -1,8 +1,8 @@
 #pragma once
 
+#include <map>
 #include <set>
 #include <string>
-#include <map>
 
 class Location
 {
