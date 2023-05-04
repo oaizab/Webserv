@@ -2,7 +2,7 @@
 
 Server::Server()
 {
-	clientMaxBodySize = 0;
+	clientMaxBodySize = 10UL*1024*1024;
 }
 
 void Server::addListen(const std::string &host, const std::string &port)
