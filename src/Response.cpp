@@ -54,7 +54,7 @@ void Response::error(int status)
 			+ std::to_string(status) + " "
 			+ getMessageByStatus(status) + "</title>\n</head>\n<body>\n\t<center><h1>"
 			+ std::to_string(status) + " " + getMessageByStatus(status)
-			+ "</h1></center>\n<hr>\n\n\t<center>webserv/1.0.0 (Unix) (MacOS/Intel)</center></body></html>";
+			+ "</h1></center>\n\t<hr>\n\t<center>webserv/1.0.0 (Unix) (MacOS/Intel)</center>\n</body>\n</html>\n";
 	_contentLength = _body.length();
 	_contentType = "text/html";
 	_keepAlive = false;

@@ -63,6 +63,7 @@ bool Http::sendResponse(int socketfd)
 			return false;
 		_bytesSent += bytesSentNow;
 		return not (_bytesSent == _response.size());
+		// TODO(oaizab): check if we need to close the connection
 	}
 	return true;
 }

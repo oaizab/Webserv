@@ -1,6 +1,7 @@
 #include "WebServ.hpp"
 #include "ConfigChecker.hpp"
 #include "Exception.hpp"
+#include "Http.hpp"
 #include "Location.hpp"
 #include "Utils.hpp"
 #include <algorithm>
@@ -332,10 +333,10 @@ void WebServ::pollInit(std::set<int> &listenfds)
 void WebServ::run()
 {
 	std::set<int> listenfds;
+	std::map<int, Http *> httpByFd;
 	pollInit(listenfds);
 	while (true)
 	{
-		std::string line;
 		int status = poll(pollfds.data(), pollfds.size(), -1);
 		if (status == -1)
 		{
@@ -365,6 +366,7 @@ void WebServ::run()
 					}
 
 					serversBySocket[clientFd] = serversBySocket[pollfds[i].fd];
+					httpByFd[clientFd] = new Http;
 					pollfds.push_back((struct pollfd) {
 						.fd = clientFd,
 						.events = POLLIN | POLLOUT,
@@ -373,43 +375,18 @@ void WebServ::run()
 				}
 				else
 				{
-					// read data
-					char buf[BUFSIZ];
-					ssize_t status = recv(pollfds[i].fd, buf, BUFSIZ, 0);
-					if (status == -1)
-					{
-						std::cerr << "recv error: " << strerror(errno) << std::endl;
-						exit(1);
-					}
-					else if (status == 0)
-					{
-						// close connection
-						close(pollfds[i].fd);
-						pollfds.erase(pollfds.begin() + i);
-						--i;
-					}
-					else
-					{
-						// handle data
-						line = std::string(buf, status);
-					}
-
+					httpByFd[pollfds[i].fd]->readRequest(pollfds[i].fd);
 				}
 			}
 			if (pollfds[i].revents & POLLOUT)
 			{
-				ssize_t status = send(pollfds[i].fd, line.c_str(), line.size(), 0);
-				if (status == -1)
+				if (not httpByFd[pollfds[i].fd]->sendResponse(pollfds[i].fd))
 				{
-					std::cerr << "send error: " << strerror(errno) << std::endl;
-					exit(1);
-				}
-				else if (status > 0)
-				{
-					// handle data
-					line.clear();
+					delete httpByFd[pollfds[i].fd];
+					httpByFd.erase(pollfds[i].fd);
+					serversBySocket.erase(pollfds[i].fd);
 					close(pollfds[i].fd);
-					pollfds.erase(pollfds.begin() + i);
+					pollfds.erase(pollfds.begin() + static_cast<ssize_t>(i));
 					--i;
 				}
 			}
