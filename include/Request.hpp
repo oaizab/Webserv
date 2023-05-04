@@ -19,6 +19,7 @@ class Request
 		const std::string &host() const;
 		bool keepAlive() const;
 		int status() const;
+		void setStatus(int status);
 
 	private:
 		enum State

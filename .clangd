@@ -46,5 +46,6 @@ Diagnostics:
 	  "cppcoreguidelines-avoid-non-const-global-variables",
 	  "cert-err58-cpp",
 	  "readability-convert-member-functions-to-static",
-	  "fuchsia-default-arguments-declarations"
+	  "fuchsia-default-arguments-declarations",
+	  "cppcoreguidelines-pro-bounds-constant-array-index"
     ]

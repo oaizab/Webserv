@@ -335,3 +335,8 @@ int Request::status() const
 {
 	return _status;
 }
+
+void Request::setStatus(int status)
+{
+	_status = status;
+}
