@@ -127,6 +127,7 @@ void Response::generateResponse(const Request &req, const Server &server)
 		generateErrorPage(req, server);
 		return;
 	}
+	error(OK);  // HACK: this is a hack to avoid having to check if the status is OK in the following code
 }
 
 std::string Response::toString() const
