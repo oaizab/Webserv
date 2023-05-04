@@ -23,6 +23,8 @@ std::string Response::getMessageByStatus(int status)
 			return "Temporary Redirect";
 		case 400:
 			return "Bad Request";
+		case 403:
+			return "Forbidden";
 		case 404:
 			return "Not Found";
 		case 405:
