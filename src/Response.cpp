@@ -1,9 +1,12 @@
 #include "Response.hpp"
 #include "Server.hpp"
 #include "Utils.hpp"
+#include "statusCodes.hpp"
 #include <fstream>
+#include <sstream>
 #include <sys/unistd.h>
 #include <unistd.h>
+#include <vector>
 
 std::string Response::getMessageByStatus(int status)
 {
@@ -81,9 +84,9 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 	return *bestMatch;
 }
 
-void Response::error(int status, Location &location, Server &server)
+void Response::error(int status, const Location &location, const Server &server)
 {
-	std::map<std::string, std::string>::iterator iter = server.errorPages.find(std::to_string(status));
+	std::map<std::string, std::string>::const_iterator iter = server.errorPages.find(std::to_string(status));
 	if (iter != server.errorPages.end())
 	{
 		std::string errorPage = iter->second;
@@ -103,4 +106,39 @@ void Response::error(int status, Location &location, Server &server)
 	}
 	else
 		error(status);
+}
+
+void Response::generateErrorPage(const Request &req, const Server &server)
+{
+	const int headerErrors[] = {BAD_REQUEST, LENGTH_REQUIRED, PAYLOAD_TOO_LARGE, NOT_IMPLEMENTED, HTTP_VERSION_NOT_SUPPORTED};
+	if (std::find(std::begin(headerErrors), std::end(headerErrors), req.status()) != std::end(headerErrors))
+	{
+		error(req.status());
+		return;
+	}
+	Location &location = matchUri(req.uri(), server);
+	error(req.status(), location, server);
+}
+
+void Response::generateResponse(const Request &req, const Server &server)
+{
+	if (req.status() != OK)
+	{
+		generateErrorPage(req, server);
+		return;
+	}
+}
+
+std::string Response::toString() const
+{
+	std::stringstream stream;
+
+	stream << "HTTP/1.1 " << _status << " " << getMessageByStatus(_status) << "\r\n";
+	stream << "Server: webserv/1.0.0 (Unix) (MacOS/Intel)\r\n";
+	stream << "Content-Type: " << _contentType << "\r\n";
+	stream << "Content-Length: " << _contentLength << "\r\n";
+	stream << "Connection: " << (_keepAlive ? "keep-alive" : "close") << "\r\n";
+	stream << "\r\n";
+	stream << _body;
+	return stream.str();
 }
