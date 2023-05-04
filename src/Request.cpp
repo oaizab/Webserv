@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <sys/_types/_size_t.h>
 
 Request::Request()
 {
@@ -62,6 +63,10 @@ bool Request::readRequest(const std::string &request)
 bool Request::parseStartLine(const std::string &line)
 {
 	std::string tmp = line;
+	if (tmp.empty())
+	{
+		return true;
+	}
 	if (tmp.front() == ' ' or tmp.front() == '\t')
 	{
 		_status = BAD_REQUEST;
@@ -207,6 +212,11 @@ bool Request::parseHeader(const std::string &line)
 			}
 			if (not _chunked and not _isContentLengthParsed)
 			{
+				if (not _isHostParsed)
+				{
+					_status = BAD_REQUEST;
+					return false;
+				}
 				_status = LENGTH_REQUIRED;
 				return false;
 			}
@@ -219,25 +229,20 @@ bool Request::parseHeader(const std::string &line)
 			_status = BAD_REQUEST;
 		return false;
 	}
-	std::vector<std::string> tokens = Utils::Split(line, ':');
+	std::vector<std::string> tokens = Utils::headerSplit(line);
 	std::transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
 	if (tokens.size() != 2)
 	{
-		if (tokens[0] != "host" or tokens.size() == 1)
-		{
-			_status = BAD_REQUEST;
-			return false;
-		}
-		if (tokens[0] == "host" and tokens.size() != 3)
-		{
-			_status = BAD_REQUEST;
-			return false;
-		}
+		_status = BAD_REQUEST;
+		return false;
 	}
 	if (tokens[0] == "host")
 	{
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
+		size_t pos = val.find(':');
+		if (pos != std::string::npos)
+			val = val.substr(0, pos);
 		if (_isHostParsed)
 		{
 			_status = BAD_REQUEST;
