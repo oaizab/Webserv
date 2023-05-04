@@ -32,3 +32,8 @@ void Location::createRedirection(const std::string &url, const std::string &code
 	}
 }
 
+void Location::addCgi(const std::string &extension, const std::string &path)
+{
+	cgi[extension] = path;
+}
+

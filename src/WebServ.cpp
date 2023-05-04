@@ -92,6 +92,25 @@ Server WebServ::parseServerBlock(std::ifstream &fin)
 	return server;
 }
 
+void WebServ::parseCgi(std::ifstream &fin, Location &location)
+{
+	std::string line;
+
+	while (std::getline(fin, line))
+	{
+		std::replace(line.begin(), line.end(), '\t', ' ');
+		line = Utils::Trim(line);
+		if (line.empty() or line[0] == '#')
+			continue;
+		
+		if (line == "}")
+			break;
+
+		std::vector<std::string> tokens = Utils::Split(line, ' ');
+		location.addCgi(tokens[0], tokens[1]);
+	}
+}
+
 std::pair<std::string, std::string> WebServ::parseListenParams(const std::string &param)
 {
 	std::pair<std::string, std::string> listenParams;
@@ -203,7 +222,10 @@ Location WebServ::parseLocationBlock(std::ifstream &fin, const std::string &uri)
 			for (size_t i = 1; i < tokens.size(); ++i)
 				location.addAllowedMethod(tokens[i]);
 		}
-		// TODO(): parse cgi
+		else if (tokens.front() == "cgi")
+		{
+
+		}
 	}
 	return location;
 }

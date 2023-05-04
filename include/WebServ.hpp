@@ -16,6 +16,7 @@ class WebServ
 	// Methods
 	static void startServers(const std::string &configFilePath = "config/webserv.conf");
 	static void parseServers(const std::string &configFilePath);
+	static void parseCgi(std::ifstream &fin, Location &location);
 	static Server parseServerBlock(std::ifstream &fin);
 	static std::pair<std::string, std::string> parseListenParams(const std::string &param);
 	static void parseErrorPagesBlock(std::ifstream &fin, Server &server);

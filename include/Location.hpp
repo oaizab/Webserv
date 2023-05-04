@@ -2,6 +2,7 @@
 
 #include <set>
 #include <string>
+#include <map>
 
 class Location
 {
@@ -14,6 +15,7 @@ class Location
 		void addAllowedMethod(const std::string &method);
 		void setRoot(const std::string &root);
 		void createRedirection(const std::string &url, const std::string &code);
+		void addCgi(const std::string &extension, const std::string &path);
 
 		// Attributes
 		std::string uri;
@@ -26,4 +28,5 @@ class Location
 		bool redirect;
 		std::string redirectUrl;
 		std::string redirectCode;
+		std::map<std::string, std::string> cgi;
 };
