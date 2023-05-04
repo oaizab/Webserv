@@ -31,4 +31,7 @@ class WebServ
 	static std::vector<Server> servers;
 	static std::map<int, std::vector<Server *> > serversBySocket;
 	static std::vector<struct pollfd> pollfds;
+
+	private:
+	static void setDefaultValues();
 };

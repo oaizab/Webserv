@@ -26,6 +26,7 @@ void WebServ::startServers(const std::string &configFilePath)
 {
 	ConfigChecker configChecker(configFilePath);
 	parseServers(configFilePath);
+	setDefaultValues();
 	run();
 }
 
@@ -412,6 +413,31 @@ void WebServ::run()
 					--i;
 				}
 			}
+		}
+	}
+}
+
+void WebServ::setDefaultValues()
+{
+	for (size_t i = 0; i < servers.size(); ++i)
+	{
+		Server &server = servers[i];
+
+		if (server.listen.empty())
+			server.listen.push_back( std::make_pair("0.0.0.0", "8080") );
+
+		if (server.serverNames.empty())
+			server.serverNames.push_back(server.listen.front().first);
+
+		if (server.locations.empty())
+		{
+			server.locations.push_back(Location());
+		}
+
+		for (size_t i = 0; i < server.locations.size(); ++i)
+		{
+			if (server.locations[i].root.empty())
+				server.locations[i].root = "./html";
 		}
 	}
 }
