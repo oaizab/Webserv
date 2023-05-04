@@ -87,7 +87,7 @@ void Response::error(int status, Location &location, Server &server)
 	if (iter != server.errorPages.end())
 	{
 		std::string errorPage = iter->second;
-		std::string path = location.root + errorPage;
+		std::string path = location.root + '/' + errorPage;
 		if (access(path.c_str(), F_OK) == 0)
 		{
 			_status = status;
