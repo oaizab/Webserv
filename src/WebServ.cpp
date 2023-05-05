@@ -415,6 +415,8 @@ void WebServ::setDefaultValues()
 		{
 			if (server.locations[i].root.empty())
 				server.locations[i].root = "./html";
+			if (server.locations[i].allowedMethods.empty())
+				server.locations[i].allowedMethods.insert("GET");
 		}
 	}
 }
