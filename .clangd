@@ -47,5 +47,7 @@ Diagnostics:
 	  "cert-err58-cpp",
 	  "readability-convert-member-functions-to-static",
 	  "fuchsia-default-arguments-declarations",
-	  "cppcoreguidelines-pro-bounds-constant-array-index"
+	  "cppcoreguidelines-pro-bounds-constant-array-index",
+	  "altera-struct-pack-align",
+	  "bugprone-easily-swappable-parameters"
     ]

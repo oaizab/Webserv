@@ -3,10 +3,14 @@
 #include "Utils.hpp"
 #include "statusCodes.hpp"
 #include <fstream>
+#include <mutex>
 #include <sstream>
+#include <string>
+#include <sys/errno.h>
 #include <sys/unistd.h>
 #include <unistd.h>
 #include <vector>
+#include <dirent.h>
 
 std::string Response::getMessageByStatus(int status)
 {
@@ -43,7 +47,7 @@ std::string Response::getMessageByStatus(int status)
 		case 505:
 			return "HTTP Version Not Supported";
 		default:
-			throw std::runtime_error("Unknown status code");
+			throw std::runtime_error("Unknown status code" + std::to_string(status));
 	}
 }
 
@@ -135,7 +139,12 @@ void Response::generateResponse(const Request &req, const Server &server)
 		generateErrorPage(req, server);
 		return;
 	}
-	error(OK);  // HACK: this is a hack to avoid having to check if the status is OK in the following code
+	//error(OK);  // HACK: this is a hack to avoid having to check if the status is OK in the following code
+	_status = OK;
+	_body = generateDirectoryListing("./html", req.uri());
+	_contentLength = _body.length();
+	_contentType = "text/html";
+	_keepAlive = false;
 }
 
 std::string Response::toString() const
@@ -150,4 +159,60 @@ std::string Response::toString() const
 	stream << "\r\n";
 	stream << _body;
 	return stream.str();
+}
+
+bool Response::keepAlive() const
+{
+	return _keepAlive;
+}
+
+std::string Response::generateDirectoryListing(const std::string &path, const std::string &_uri)
+{
+	std::stringstream stream;
+	std::string uri = _uri;
+	stream << "<html>\n<head>\n\t<title>Index of " << uri << "</title>\n</head>\n<body>\n\t<h1>Index of " << uri << "</h1>\n\t<hr>\n\t<ul>\n";
+	if (uri.back() == '/')
+		uri.pop_back();
+	std::vector<Entry> files;
+	DIR *dir = NULL;
+	struct dirent *ent = NULL;
+	dir = opendir(path.c_str());
+	if (dir != NULL)
+	{
+		while ((ent = readdir(dir)) != NULL)
+		{
+			if (ent->d_name[0] != '.')
+			{
+				Entry entry;
+				entry.name = ent->d_name;
+				entry.isDirectory = ent->d_type == DT_DIR;
+				files.push_back(entry);
+			}
+		}
+		closedir(dir);
+	}
+	else
+	{
+		error(INTERNAL_SERVER_ERROR);
+		return _body;
+	}
+	std::sort(files.begin(), files.end(), compareEntries);
+	for (std::vector<Entry>::iterator it = files.begin(); it != files.end(); ++it)
+	{
+		if (it->isDirectory)
+			stream << "\t\t<li><a href=\"" << uri << '/' << it->name << "/\">" << it->name << "/</a></li>\n";
+		else
+			stream << "\t\t<li><a href=\"" << uri << '/' << it->name << "\">" << it->name << "</a></li>\n";
+	}
+	stream << "\t</ul>\n\t<hr>\n\t<center>webserv/1.0.0 (Unix) (MacOS/Intel)</center>\n</body>\n</html>\n";
+	return stream.str();
+}
+
+bool Response::compareEntries(const Entry &entA, const Entry &entB)
+{
+	if (entA.isDirectory and not entB.isDirectory)
+		return true;
+	if (not entA.isDirectory and entB.isDirectory)
+		return false;
+	return entA.name < entB.name;
 }

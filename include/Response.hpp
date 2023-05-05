@@ -10,6 +10,7 @@ class Response
 {
 	public:
 		void generateResponse(const Request &req, const Server &server);
+		bool keepAlive() const;
 		std::string toString() const;
 
 	private:
@@ -24,4 +25,12 @@ class Response
 		static std::string getMessageByStatus(int status);
 		Location &matchUri(const std::string &uri, const Server &server);
 		void generateErrorPage(const Request &req, const Server &server);
+
+		struct Entry
+		{
+			std::string name;
+			bool isDirectory;
+		};
+		std::string generateDirectoryListing(const std::string &path, const std::string &uri);
+		static bool compareEntries(const Entry &entA, const Entry &entB);
 };
