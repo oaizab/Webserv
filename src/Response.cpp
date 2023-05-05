@@ -65,6 +65,7 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 	const std::vector<Location> &locations = server.locations;
 	Location *bestMatch = NULL;
 
+	assert(not uri.empty());
 	assert(not locations.empty());
 
 	typedef std::vector<Location>::const_iterator locationIterator;
@@ -75,12 +76,19 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 
 		if (Utils::startsWith(uri, locationUri))
 		{
+			size_t nextCharIndex = locationUri.length();
+
+			if (uri.length() > nextCharIndex and uri[nextCharIndex] != '/')
+			{
+				continue;
+			}
 			if (bestMatch == NULL or locationUri.length() > bestMatch->uri.length())
 			{
 				bestMatch = const_cast<Location *>(&(*it));
 			}
 		}
 	}
+	assert(bestMatch != NULL);
 	return *bestMatch;
 }
 
