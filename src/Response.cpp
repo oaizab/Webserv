@@ -2,6 +2,7 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 #include "statusCodes.hpp"
+#include <dirent.h>
 #include <fstream>
 #include <mutex>
 #include <sstream>
@@ -10,7 +11,6 @@
 #include <sys/unistd.h>
 #include <unistd.h>
 #include <vector>
-#include <dirent.h>
 
 // TODO: remove me
 #include <iostream>
