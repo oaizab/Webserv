@@ -12,6 +12,9 @@
 #include <vector>
 #include <dirent.h>
 
+// TODO: remove me
+#include <iostream>
+
 std::string Response::getMessageByStatus(int status)
 {
 	switch (status)
@@ -68,6 +71,7 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 {
 	const std::vector<Location> &locations = server.locations;
 	Location *bestMatch = NULL;
+	Location *rootLocation = NULL;
 
 	assert(not uri.empty());
 	assert(not locations.empty());
@@ -77,6 +81,12 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 	for (locationIterator it = locations.begin(); it != locations.end(); ++it)
 	{
 		const std::string &locationUri = it->uri;
+
+		if (locationUri == "/")
+		{
+			rootLocation = const_cast<Location *>(&(*it));
+			continue;
+		}
 
 		if (Utils::startsWith(uri, locationUri))
 		{
@@ -92,7 +102,12 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 			}
 		}
 	}
-	assert(bestMatch != NULL);
+
+	if (bestMatch == NULL)
+	{
+		assert(rootLocation != NULL);
+		return *rootLocation;
+	}
 	return *bestMatch;
 }
 
@@ -140,11 +155,28 @@ void Response::generateResponse(const Request &req, const Server &server)
 		return;
 	}
 	//error(OK);  // HACK: this is a hack to avoid having to check if the status is OK in the following code
-	_status = OK;
-	_body = generateDirectoryListing("./html", req.uri());
-	_contentLength = _body.length();
-	_contentType = "text/html";
-	_keepAlive = false;
+
+	Location &targetLocation = matchUri(req.uri(), server);
+	std::string path = targetLocation.root + req.uri();
+
+	if (Utils::isDirectory(path))
+	{
+		std::cout << path << " [Directory]" << std::endl;
+		_status = OK;
+		_body = generateDirectoryListing(path, req.uri());
+		_contentLength = _body.length();
+		_contentType = "text/html";
+		_keepAlive = false;
+	}
+	else
+	{
+		std::cout << path << " [File]" << std::endl;
+		_status = OK;
+		_body = getFileContent(path);
+		_contentLength = _body.length();
+		_contentType = "text/html"; // HACK: replace this later
+		_keepAlive = false;
+	}
 }
 
 std::string Response::toString() const
@@ -215,4 +247,25 @@ bool Response::compareEntries(const Entry &entA, const Entry &entB)
 	if (not entA.isDirectory and entB.isDirectory)
 		return false;
 	return entA.name < entB.name;
+}
+
+std::string Response::getFileContent(const std::string &path)
+{
+	if (access(path.c_str(), F_OK) == -1)
+	{
+		error(NOT_FOUND);
+		return _body;
+	}
+	if (access(path.c_str(), R_OK) == -1)
+	{
+		error(FORBIDDEN);
+		return _body;
+	}
+
+	std::ifstream ifs(path.c_str());
+
+	return std::string(
+		std::istreambuf_iterator<char>(ifs),
+		std::istreambuf_iterator<char>()
+	);
 }
