@@ -11,4 +11,6 @@ namespace Utils
 	bool endsWith(const std::string &str, const std::string &suffix);
 	bool startsWith(const std::string &str, const std::string &prefix);
 	std::vector<std::string> headerSplit(const std::string &str);
+	bool isDirectory(const std::string &path);
+	bool isFile(const std::string &path);
 };

@@ -1,4 +1,5 @@
 #include "Utils.hpp"
+#include <sys/stat.h>
 
 std::string Utils::Trim(const std::string &str)
 {
@@ -111,4 +112,26 @@ std::vector<std::string> Utils::headerSplit(const std::string &str)
 		tokens.push_back(last);
 	}
 	return tokens;
+}
+
+bool Utils::isDirectory(const std::string &path)
+{
+	struct stat info = {};
+
+	if (stat(path.c_str(), &info) != 0)
+	{
+		return false;
+	}
+	return (info.st_mode & S_IFDIR) != 0;
+}
+
+bool Utils::isFile(const std::string &path)
+{
+	struct stat info = {};
+
+	if (stat(path.c_str(), &info) != 0)
+	{
+		return false;
+	}
+	return (info.st_mode & S_IFREG) != 0;
 }
