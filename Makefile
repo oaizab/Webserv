@@ -118,7 +118,7 @@ TEST_NAMES := ConfigChecker Utils WebServ Request
 # Note: Dependencies are written without any extension
 # Note: This can be omitted if the unit has no external dependencies
 ConfigChecker_DEP := Exception Utils
-WebServ_DEP := ConfigChecker Exception Utils Server Location
+WebServ_DEP := ConfigChecker Exception Utils Server Location Http Request Response
 Request_DEP := Utils
 
 # ******************************* Test Targets *********************************
