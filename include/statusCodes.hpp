@@ -4,6 +4,7 @@
 
 #define OK 200
 #define CREATED 201
+#define NO_CONTENT 204
 
 #define MOVE_PERMANENTLY 301
 #define FOUND 302
