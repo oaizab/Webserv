@@ -35,4 +35,6 @@ class Response
 		static bool compareEntries(const Entry &entA, const Entry &entB);
 
 		std::string getFileContent(const std::string &path);
+
+		void GET(const Request &req, const Server &server);
 };

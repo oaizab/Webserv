@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include "MimeTypes.hpp"
 #include "Server.hpp"
 #include "Utils.hpp"
 #include "statusCodes.hpp"
@@ -156,28 +157,14 @@ void Response::generateResponse(const Request &req, const Server &server)
 		generateErrorPage(req, server);
 		return;
 	}
-	//error(OK);  // HACK: this is a hack to avoid having to check if the status is OK in the following code
-
-	Location &targetLocation = matchUri(req.uri(), server);
-	std::string path = targetLocation.root + req.uri();
-
-	if (Utils::isDirectory(path))
+	// HACK: for now, we only support GET
+	if (req.method() == "GET")
 	{
-		std::cout << path << " [Directory]" << std::endl;
-		_status = OK;
-		_body = generateDirectoryListing(path, req.uri());
-		_contentLength = _body.length();
-		_contentType = "text/html";
-		_keepAlive = false;
+		GET(req, server);
 	}
 	else
 	{
-		std::cout << path << " [File]" << std::endl;
-		_status = OK;
-		_body = getFileContent(path);
-		_contentLength = _body.length();
-		_contentType = "text/html"; // HACK: replace this later
-		_keepAlive = false;
+		error(METHOD_NOT_ALLOWED);
 	}
 }
 
@@ -270,4 +257,49 @@ std::string Response::getFileContent(const std::string &path)
 		std::istreambuf_iterator<char>(ifs),
 		std::istreambuf_iterator<char>()
 	);
+}
+
+void Response::GET(const Request &req, const Server &server)
+{
+	Location &location = matchUri(req.uri(), server);
+	std::string path = location.root + req.uri();
+
+	_status = OK;
+	_keepAlive = false;
+	if (Utils::isDirectory(path))
+	{
+		typedef std::set<std::string>::const_iterator setIterator;
+
+		for (setIterator it = location.index.begin(); it != location.index.end(); ++it)
+		{
+			std::string indexPath = path + '/' + *it;
+
+			if (access(indexPath.c_str(), F_OK) != -1)
+			{
+				_body = getFileContent(indexPath);
+				_contentType = MimeTypes::getMimeType( Utils::getExtension(indexPath) );
+				_contentLength = _body.length();
+				break;
+			}
+		}
+		if (_body.empty())
+		{
+			if (location.autoIndex)
+			{
+				_body = generateDirectoryListing(path, req.uri());
+				_contentType = "text/html";
+				_contentLength = _body.length();
+			}
+			else
+			{
+				error(FORBIDDEN, location, server);
+			}
+		}
+	}
+	else // path refers to a file
+	{
+		_contentType = MimeTypes::getMimeType( Utils::getExtension(path) );
+		_body = getFileContent(path);
+		_contentLength = _body.length();
+	}
 }
