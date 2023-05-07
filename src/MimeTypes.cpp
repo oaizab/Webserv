@@ -1,5 +1,7 @@
 #include "MimeTypes.hpp"
 
+std::map<std::string, std::string> MimeTypes::data;
+
 void MimeTypes::init()
 {
 	data.insert(std::make_pair("html", "text/html"));
