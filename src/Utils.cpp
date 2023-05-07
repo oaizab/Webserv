@@ -135,3 +135,14 @@ bool Utils::isFile(const std::string &path)
 	}
 	return (info.st_mode & S_IFREG) != 0;
 }
+
+std::string Utils::getExtension(const std::string &path)
+{
+	std::string::size_type pos = path.find_last_of('.');
+
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+	return path.substr(pos + 1);
+}

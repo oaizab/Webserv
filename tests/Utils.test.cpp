@@ -60,3 +60,11 @@ TEST_CASE("startsWith", "[Utils]")
 	REQUIRE(Utils::startsWith("hello world", "hello!") == false);
 	REQUIRE(Utils::startsWith("hello world", "") == true);
 }
+
+TEST_CASE("getExtension", "[Utils]")
+{
+	REQUIRE(Utils::getExtension("hello.txt") == "txt");
+	REQUIRE(Utils::getExtension("hello.txt.txt") == "txt");
+	REQUIRE(Utils::getExtension("hello").empty());
+	REQUIRE(Utils::getExtension("").empty());
+}

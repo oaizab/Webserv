@@ -13,4 +13,5 @@ namespace Utils
 	std::vector<std::string> headerSplit(const std::string &str);
 	bool isDirectory(const std::string &path);
 	bool isFile(const std::string &path);
+	std::string getExtension(const std::string &path);
 };
