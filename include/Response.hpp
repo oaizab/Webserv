@@ -37,4 +37,5 @@ class Response
 		std::string getFileContent(const std::string &path);
 
 		void GET(const Request &req, const Server &server);
+		void DELETE(const Request &req, const Server &server);
 };

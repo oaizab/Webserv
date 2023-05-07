@@ -162,6 +162,10 @@ void Response::generateResponse(const Request &req, const Server &server)
 	{
 		GET(req, server);
 	}
+	else if (req.method() == "DELETE")
+	{
+		DELETE(req, server);
+	}
 	else
 	{
 		error(METHOD_NOT_ALLOWED);
@@ -302,4 +306,33 @@ void Response::GET(const Request &req, const Server &server)
 		_body = getFileContent(path);
 		_contentLength = _body.length();
 	}
+}
+
+void Response::DELETE(const Request &req, const Server &server)
+{
+	Location &location = matchUri(req.uri(), server);
+	std::string path = location.root + req.uri();
+
+	if (access(path.c_str(), F_OK) == -1)
+	{
+		error(NOT_FOUND);
+		return;
+	}
+	if (access(path.c_str(), W_OK) == -1)
+	{
+		error(FORBIDDEN);
+		return;
+	}
+	if (Utils::isDirectory(path))
+	{
+		error(FORBIDDEN);
+		return;
+	}
+	if (unlink(path.c_str()) == -1)
+	{
+		error(INTERNAL_SERVER_ERROR);
+		return;
+	}
+	_status = NO_CONTENT;
+	_keepAlive = false;
 }
