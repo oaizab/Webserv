@@ -70,7 +70,7 @@ void Response::error(int status)
 	_keepAlive = false;
 }
 
-Location &Response::matchUri(const std::string &uri, const Server &server)
+Location *Response::matchUri(const std::string &uri, const Server &server)
 {
 	const std::vector<Location> &locations = server.locations;
 	Location *bestMatch = NULL;
@@ -108,10 +108,11 @@ Location &Response::matchUri(const std::string &uri, const Server &server)
 
 	if (bestMatch == NULL)
 	{
-		assert(rootLocation != NULL);
-		return *rootLocation;
+		if (rootLocation != NULL)
+			return rootLocation;
+		return NULL;
 	}
-	return *bestMatch;
+	return bestMatch;
 }
 
 void Response::error(int status, const Location &location, const Server &server)
@@ -146,8 +147,11 @@ void Response::generateErrorPage(const Request &req, const Server &server)
 		error(req.status());
 		return;
 	}
-	Location &location = matchUri(req.uri(), server);
-	error(req.status(), location, server);
+	Location *location = matchUri(req.uri(), server);
+	if (location == NULL)
+		error(req.status());
+	else
+		error(req.status(), *location, server);
 }
 
 void Response::generateResponse(const Request &req, const Server &server)
@@ -269,8 +273,13 @@ std::string Response::getFileContent(const std::string &path)
 
 void Response::GET(const Request &req, const Server &server)
 {
-	Location &location = matchUri(req.uri(), server);
-	std::string path = location.root + req.uri();
+	Location *location = matchUri(req.uri(), server);
+	if (location == NULL)
+	{
+		error(NOT_FOUND);
+		return;
+	}
+	std::string path = location->root + req.uri();
 
 	_status = OK;
 	_keepAlive = false;
@@ -278,7 +287,7 @@ void Response::GET(const Request &req, const Server &server)
 	{
 		typedef std::set<std::string>::const_iterator setIterator;
 
-		for (setIterator it = location.index.begin(); it != location.index.end(); ++it)
+		for (setIterator it = location->index.begin(); it != location->index.end(); ++it)
 		{
 			std::string indexPath = path + '/' + *it;
 
@@ -292,7 +301,7 @@ void Response::GET(const Request &req, const Server &server)
 		}
 		if (_body.empty())
 		{
-			if (location.autoIndex)
+			if (location->autoIndex)
 			{
 				_body = generateDirectoryListing(path, req.uri());
 				_contentType = "text/html";
@@ -300,7 +309,7 @@ void Response::GET(const Request &req, const Server &server)
 			}
 			else
 			{
-				error(FORBIDDEN, location, server);
+				error(FORBIDDEN, *location, server);
 			}
 		}
 	}
@@ -314,8 +323,13 @@ void Response::GET(const Request &req, const Server &server)
 
 void Response::DELETE(const Request &req, const Server &server)
 {
-	Location &location = matchUri(req.uri(), server);
-	std::string path = location.root + req.uri();
+	Location *location = matchUri(req.uri(), server);
+	if (location == NULL)
+	{
+		error(NOT_FOUND);
+		return;
+	}
+	std::string path = location->root + req.uri();
 
 	if (access(path.c_str(), F_OK) == -1)
 	{

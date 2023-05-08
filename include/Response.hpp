@@ -23,7 +23,7 @@ class Response
 		void error(int status);
 		void error(int status, const Location &location, const Server &server);
 		static std::string getMessageByStatus(int status);
-		Location &matchUri(const std::string &uri, const Server &server);
+		Location *matchUri(const std::string &uri, const Server &server);
 		void generateErrorPage(const Request &req, const Server &server);
 
 		struct Entry
