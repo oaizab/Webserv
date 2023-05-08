@@ -411,12 +411,12 @@ void WebServ::setDefaultValues()
 			server.locations.push_back(Location());
 		}
 
-		for (size_t i = 0; i < server.locations.size(); ++i)
+		for (size_t j = 0; j < server.locations.size(); ++j)
 		{
-			if (server.locations[i].root.empty())
-				server.locations[i].root = "./html";
-			if (server.locations[i].allowedMethods.empty())
-				server.locations[i].allowedMethods.insert("GET");
+			if (server.locations[j].root.empty())
+				server.locations[j].root = "./html";
+			if (server.locations[j].allowedMethods.empty())
+				server.locations[j].allowedMethods.insert("GET");
 		}
 	}
 }
