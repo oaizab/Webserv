@@ -178,11 +178,15 @@ std::string Response::toString() const
 
 	stream << "HTTP/1.1 " << _status << " " << getMessageByStatus(_status) << "\r\n";
 	stream << "Server: webserv/1.0.0 (Unix) (MacOS/Intel)\r\n";
-	stream << "Content-Type: " << _contentType << "\r\n";
-	stream << "Content-Length: " << _contentLength << "\r\n";
+	if (_status != NO_CONTENT)
+	{
+		stream << "Content-Type: " << _contentType << "\r\n";
+		stream << "Content-Length: " << _contentLength << "\r\n";
+	}
 	stream << "Connection: " << (_keepAlive ? "keep-alive" : "close") << "\r\n";
 	stream << "\r\n";
-	stream << _body;
+	if (_status != NO_CONTENT)
+		stream << _body;
 	return stream.str();
 }
 
