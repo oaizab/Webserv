@@ -93,7 +93,7 @@ endif
 
 # ******************************* Main Targets *********************************
 all: $(NAME)
-	[ -n "$(RUN)" ] && ./$< || true
+	[ -n "$(RUN)" ] && python3 $(TOOL_DIR)/run.py || true
 
 $(NAME): $(OBJS)
 	echo "Linking $(BLUE)$(@F)$(NC)..."
