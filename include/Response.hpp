@@ -9,7 +9,7 @@
 class Response
 {
 	public:
-		void generateResponse(const Request &req, const Server &server);
+		void generateResponse(Request &req, const Server &server);
 		bool keepAlive() const;
 		std::string toString() const;
 
@@ -34,8 +34,8 @@ class Response
 		std::string generateDirectoryListing(const std::string &path, const std::string &uri);
 		static bool compareEntries(const Entry &entA, const Entry &entB);
 
-		std::string getFileContent(const std::string &path);
+		std::string getFileContent(const std::string &path, Request &req, const Server &server);
 
-		void GET(const Request &req, const Server &server);
-		void DELETE(const Request &req, const Server &server);
+		void GET(Request &req, const Server &server);
+		void DELETE(Request &req, const Server &server);
 };

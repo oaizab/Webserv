@@ -1,5 +1,6 @@
 #include "Response.hpp"
 #include "MimeTypes.hpp"
+#include "Request.hpp"
 #include "Server.hpp"
 #include "Utils.hpp"
 #include "statusCodes.hpp"
@@ -154,7 +155,7 @@ void Response::generateErrorPage(const Request &req, const Server &server)
 		error(req.status(), *location, server);
 }
 
-void Response::generateResponse(const Request &req, const Server &server)
+void Response::generateResponse(Request &req, const Server &server)
 {
 	if (req.status() != OK)
 	{
@@ -250,16 +251,18 @@ bool Response::compareEntries(const Entry &entA, const Entry &entB)
 	return entA.name < entB.name;
 }
 
-std::string Response::getFileContent(const std::string &path)
+std::string Response::getFileContent(const std::string &path, Request &req, const Server &server)
 {
 	if (access(path.c_str(), F_OK) == -1)
 	{
-		error(NOT_FOUND);
+		req.setStatus(NOT_FOUND);
+		generateErrorPage(req, server);
 		return _body;
 	}
 	if (access(path.c_str(), R_OK) == -1)
 	{
-		error(FORBIDDEN);
+		req.setStatus(FORBIDDEN);
+		generateErrorPage(req, server);
 		return _body;
 	}
 
@@ -271,7 +274,7 @@ std::string Response::getFileContent(const std::string &path)
 	);
 }
 
-void Response::GET(const Request &req, const Server &server)
+void Response::GET(Request &req, const Server &server)
 {
 	Location *location = matchUri(req.uri(), server);
 	if (location == NULL)
@@ -293,7 +296,7 @@ void Response::GET(const Request &req, const Server &server)
 
 			if (access(indexPath.c_str(), F_OK) != -1)
 			{
-				_body = getFileContent(indexPath);
+				_body = getFileContent(indexPath, req, server);
 				_contentType = MimeTypes::getMimeType( Utils::getExtension(indexPath) );
 				_contentLength = _body.length();
 				break;
@@ -316,39 +319,44 @@ void Response::GET(const Request &req, const Server &server)
 	else // path refers to a file
 	{
 		_contentType = MimeTypes::getMimeType( Utils::getExtension(path) );
-		_body = getFileContent(path);
+		_body = getFileContent(path, req, server);
 		_contentLength = _body.length();
 	}
 }
 
-void Response::DELETE(const Request &req, const Server &server)
+void Response::DELETE(Request &req, const Server &server)
 {
 	Location *location = matchUri(req.uri(), server);
 	if (location == NULL)
 	{
-		error(NOT_FOUND);
+		req.setStatus(NOT_FOUND);
+		generateErrorPage(req, server);
 		return;
 	}
 	std::string path = location->root + req.uri();
 
 	if (access(path.c_str(), F_OK) == -1)
 	{
-		error(NOT_FOUND);
+		req.setStatus(NOT_FOUND);
+		generateErrorPage(req, server);
 		return;
 	}
 	if (access(path.c_str(), W_OK) == -1)
 	{
-		error(FORBIDDEN);
+		req.setStatus(FORBIDDEN);
+		generateErrorPage(req, server);
 		return;
 	}
 	if (Utils::isDirectory(path))
 	{
-		error(FORBIDDEN);
+		req.setStatus(FORBIDDEN);
+		generateErrorPage(req, server);
 		return;
 	}
 	if (unlink(path.c_str()) == -1)
 	{
-		error(INTERNAL_SERVER_ERROR);
+		req.setStatus(INTERNAL_SERVER_ERROR);
+		generateErrorPage(req, server);
 		return;
 	}
 	_status = NO_CONTENT;
