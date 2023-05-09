@@ -4,12 +4,14 @@
 #include "Http.hpp"
 #include "Location.hpp"
 #include "Utils.hpp"
+#include <_types/_uint16_t.h>
 #include <algorithm>
 #include <cstdio>
 #include <fcntl.h>
 #include <fstream>
 #include <iostream>
 #include <netdb.h>
+#include <set>
 #include <string>
 #include <sys/_types/_size_t.h>
 #include <sys/_types/_ssize_t.h>
@@ -17,6 +19,7 @@
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
 std::vector<Server> WebServ::servers;
@@ -53,6 +56,7 @@ Server WebServ::parseServerBlock(std::ifstream &fin)
 {
 	Server server;
 	std::string line;
+	std::set<std::pair<uint32_t, uint16_t> > listenDirectives;
 
 	while (std::getline(fin, line))
 	{
@@ -70,7 +74,7 @@ Server WebServ::parseServerBlock(std::ifstream &fin)
 			for (size_t i = 1; i < tokens.size(); ++i)
 			{	
 				std::pair<std::string, std::string> listenParams = parseListenParams(tokens[i]);
-				server.addListen(listenParams.first, listenParams.second);
+				server.addListen(listenParams.first, listenParams.second, listenDirectives);
 			}
 		}
 		else if (tokens.front() == "server_name")

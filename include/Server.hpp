@@ -15,7 +15,7 @@ class Server
 	Server();
 
 	// Methods
-	void addListen(const std::string &host, const std::string &port);
+	void addListen(const std::string &host, const std::string &port, std::set<std::pair<uint32_t, uint16_t> > &listenParams);
 	void addServerName(const std::string &serverName);
 	void addErrorPage(const std::string &errorCode, const std::string &errorPage);
 	void addLocation(const Location &location);
