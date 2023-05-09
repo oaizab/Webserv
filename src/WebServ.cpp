@@ -295,7 +295,7 @@ void WebServ::openSocket(std::map<std::pair<uint32_t, uint16_t>, int> &socketsOp
 				exit(1);
 			}
 
-			if (listen(socketFd, 100) == -1)
+			if (listen(socketFd, SOMAXCONN) == -1)
 			{
 				std::cerr << "listen error: " << strerror(errno) << std::endl;
 				exit(1);
