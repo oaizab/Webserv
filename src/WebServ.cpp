@@ -156,7 +156,7 @@ void WebServ::parseErrorPagesBlock(std::ifstream &fin, Server &server)
 
 size_t WebServ::parseClientMaxBodySizeParam(const std::string &param)
 {
-	const std::string SIZE_SUFFIXES = "kKmMgG";
+	const std::string SIZE_SUFFIXES = "kKmM";
 	size_t size = 0;
 	size_t digitsLength = param.find_first_not_of("0123456789");
 	if (digitsLength == std::string::npos)
@@ -169,8 +169,6 @@ size_t WebServ::parseClientMaxBodySizeParam(const std::string &param)
 			size = size * 1024;
 		else if (suffix == 'm' or suffix == 'M')
 			size = size * 1024 * 1024;
-		else if (suffix == 'g' or suffix == 'G')
-			size = size * 1024 * 1024 * 1024;
 	}
 	return size;
 }

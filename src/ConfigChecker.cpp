@@ -164,7 +164,7 @@ bool ConfigChecker::validateServerName(const std::string &serverName)
  */
 bool ConfigChecker::validateSize(const std::string &sizeStr)
 {
-	const std::string SIZE_SUFFIXES = "kmgKMG";
+	const std::string SIZE_SUFFIXES = "kmKM";
 	const std::set<char> SIZE_SUFFIXES_SET(SIZE_SUFFIXES.begin(), SIZE_SUFFIXES.end());
 
 	if (sizeStr.empty())
