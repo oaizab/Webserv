@@ -20,7 +20,7 @@ Request::Request()
 	_status = 0;
 }
 
-bool Request::readRequest(const std::string &request)
+bool Request::readRequest(const std::string &request, size_t clientMaxBodySize)
 {
 	_request += request;
 	std::vector<std::string> lines = Utils::reqSplit(_request);
@@ -48,12 +48,12 @@ bool Request::readRequest(const std::string &request)
 		}
 		else if (_state == HEADER)
 		{
-			if (not parseHeader(*it))
+			if (not parseHeader(*it, clientMaxBodySize))
 				return false;
 		}
 		else if (_state == BODY)
 		{
-			if (not parseBody(*it))
+			if (not parseBody(*it, clientMaxBodySize))
 				return false;
 		}
 	}
@@ -133,7 +133,7 @@ bool Request::parseVersion(const std::string &line)
 	return line == "HTTP/1.1";
 }
 
-bool Request::parseBody(const std::string &line)
+bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
 {
 	if (_chunked)
 	{
@@ -178,6 +178,11 @@ bool Request::parseBody(const std::string &line)
 			{
 				_chunkContent.erase(_chunkContent.length() - prefixLength); // Remove CRLF or LF
 				_body.append(_chunkContent);
+				if (_body.length() > clientMaxBodySize)
+				{
+					_status = PAYLOAD_TOO_LARGE;
+					return false;
+				}
 				_chunkSize = 0;
 				_chunkSizeParsed = false;
 				_chunkContent.clear();
@@ -196,7 +201,7 @@ bool Request::parseBody(const std::string &line)
 	return true;
 }
 
-bool Request::parseHeader(const std::string &line)
+bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 {
 	if (line.empty())
 	{
@@ -266,6 +271,11 @@ bool Request::parseHeader(const std::string &line)
 			return false;
 		}
 		_contentLength = std::stoi(val);
+		if (_contentLength > clientMaxBodySize)
+		{
+			_status = PAYLOAD_TOO_LARGE;
+			return false;
+		}
 		_isContentLengthParsed = true;
 	}
 	else if (tokens[0] == "transfer-encoding")

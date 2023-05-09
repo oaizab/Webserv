@@ -11,7 +11,7 @@ class Request
 		Request();
 		~Request() {};
 
-		bool readRequest(const std::string &request);
+		bool readRequest(const std::string &request, size_t clientMaxBodySize);
 
 		const std::string &method() const;
 		const std::string &uri() const;
@@ -51,8 +51,8 @@ class Request
 		int _status;
 
 		bool parseStartLine(const std::string &line);
-		bool parseHeader(const std::string &line);
-		bool parseBody(const std::string &line);
+		bool parseHeader(const std::string &line, size_t clientMaxBodySize);
+		bool parseBody(const std::string &line, size_t clientMaxBodySize);
 		bool parseHost(const std::string &line);
 		bool parseUri(const std::string &line);
 		bool parseMethod(const std::string &line);
