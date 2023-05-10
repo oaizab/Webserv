@@ -193,6 +193,20 @@ bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
 	else
 	{
 		_body.append(line);
+
+		if (_body.length() == _contentLength + 1 and _body.back() == '\n')
+		{
+			_body.pop_back();
+			_status = OK;
+			return false;
+		}
+		if (_body.length() == _contentLength + 2 and Utils::endsWith(_body, "\r\n"))
+		{
+			_body.erase(_body.length() - 2);
+			_status = OK;
+			return false;
+		}
+
 		if (_body.length() > _contentLength)
 		{
 			_status = BAD_REQUEST;
