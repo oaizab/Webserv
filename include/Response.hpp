@@ -10,13 +10,11 @@ class Response
 {
 	public:
 		void generateResponse(Request &req, const Server &server);
-		bool keepAlive() const;
 		std::string toString() const;
 
 	private:
 		int _status;
 		std::string _body;
-		bool _keepAlive;
 		std::string _contentType;
 		size_t _contentLength;
 

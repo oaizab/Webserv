@@ -68,7 +68,6 @@ void Response::error(int status)
 			+ "</h1></center>\n\t<hr>\n\t<center>webserv/1.0.0 (Unix) (MacOS/Intel)</center>\n</body>\n</html>\n";
 	_contentLength = _body.length();
 	_contentType = "text/html";
-	_keepAlive = false;
 }
 
 Location *Response::matchUri(const std::string &uri, const Server &server)
@@ -131,7 +130,6 @@ void Response::error(int status, const Location &location, const Server &server)
 			_body = str;
 			_contentLength = _body.length();
 			_contentType = "text/html";
-			_keepAlive = false;
 		}
 		else
 			error(status);
@@ -162,7 +160,8 @@ void Response::generateResponse(Request &req, const Server &server)
 		generateErrorPage(req, server);
 		return;
 	}
-	// HACK: for now, we only support GET
+	// TODO(oaizab): check if the method is allowed
+	// TODO(oaizab): check if there is a redirection
 	if (req.method() == "GET")
 	{
 		GET(req, server);
@@ -188,16 +187,11 @@ std::string Response::toString() const
 		stream << "Content-Type: " << _contentType << "\r\n";
 		stream << "Content-Length: " << _contentLength << "\r\n";
 	}
-	stream << "Connection: " << (_keepAlive ? "keep-alive" : "close") << "\r\n";
+	stream << "Connection: close\r\n";
 	stream << "\r\n";
 	if (_status != NO_CONTENT)
 		stream << _body;
 	return stream.str();
-}
-
-bool Response::keepAlive() const
-{
-	return _keepAlive;
 }
 
 std::string Response::generateDirectoryListing(const std::string &path, const std::string &_uri)
@@ -285,7 +279,6 @@ void Response::GET(Request &req, const Server &server)
 	std::string path = location->root + req.uri();
 
 	_status = OK;
-	_keepAlive = false;
 	if (Utils::isDirectory(path))
 	{
 		typedef std::set<std::string>::const_iterator setIterator;
@@ -360,5 +353,4 @@ void Response::DELETE(Request &req, const Server &server)
 		return;
 	}
 	_status = NO_CONTENT;
-	_keepAlive = false;
 }

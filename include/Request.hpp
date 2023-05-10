@@ -17,7 +17,6 @@ class Request
 		const std::string &uri() const;
 		const std::string &body() const;
 		const std::string &host() const;
-		bool keepAlive() const;
 		int status() const;
 		void setStatus(int status);
 
@@ -41,7 +40,6 @@ class Request
 		bool _chunked;
 		size_t _contentLength;
 		bool _isContentLengthParsed;
-		bool _keepAlive;
 
 		std::string _chunkSizeStr;
 		size_t _chunkSize;

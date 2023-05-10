@@ -45,7 +45,6 @@ void Http::readRequest(int socketfd)
 	request = buf;
 	if (not _req.readRequest(request, server.clientMaxBodySize))
 	{
-		Server &server = matchHost(_req.host(), socketfd);
 		_res.generateResponse(_req, server);
 		_response = _res.toString();
 		_isResponseGenerated = true;
@@ -64,7 +63,6 @@ bool Http::sendResponse(int socketfd)
 			return false;
 		_bytesSent += bytesSentNow;
 		return not (_bytesSent == _response.size());
-		// TODO(oaizab): check if we need to close the connection
 	}
 	return true;
 }

@@ -14,7 +14,6 @@ Request::Request()
 	_chunked = false;
 	_contentLength = 0;
 	_isContentLengthParsed = false;
-	_keepAlive = false;
 	_chunkSize = 0;
 	_chunkSizeParsed = false;
 	_status = 0;
@@ -101,6 +100,8 @@ bool Request::parseMethod(const std::string &line)
 		_method = "GET";
 	else if (line == "POST")
 		_method = "POST";
+	else if (line == "PUT")
+		_method = "PUT";
 	else if (line == "DELETE")
 		_method = "DELETE";
 	else
@@ -205,7 +206,7 @@ bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 {
 	if (line.empty())
 	{
-		if (_method == "POST")
+		if (_method == "POST" or _method == "PUT")
 		{
 			if (_isContentLengthParsed and _contentLength == 0)
 			{
@@ -296,20 +297,6 @@ bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 			return false;
 		}
 	}
-	else if (tokens[0] == "connection")
-	{
-		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
-		std::string val = Utils::Trim(tokens[1]);
-		if (val == "close")
-			_keepAlive = false;
-		else if (val == "keep-alive")
-			_keepAlive = true;
-		else
-		{
-			_status = BAD_REQUEST;
-			return false;
-		}
-	}
 	else
 	{
 		if (tokens[0].find(' ') != std::string::npos or tokens[0].find('\t') != std::string::npos)
@@ -339,11 +326,6 @@ const std::string &Request::body() const
 const std::string &Request::host() const
 {
 	return _host;
-}
-
-bool Request::keepAlive() const
-{
-	return _keepAlive;
 }
 
 int Request::status() const
