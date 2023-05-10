@@ -160,8 +160,22 @@ void Response::generateResponse(Request &req, const Server &server)
 		generateErrorPage(req, server);
 		return;
 	}
-	// TODO(oaizab): check if the method is allowed
+
+	const Location *location = matchUri(req.uri(), server);
+
+	if (location == NULL)
+	{
+		error(NOT_FOUND);
+		return;
+	}
+	if (location->allowedMethods.find(req.method()) == location->allowedMethods.end())
+	{
+		error(METHOD_NOT_ALLOWED);
+		return;
+	}
+
 	// TODO(oaizab): check if there is a redirection
+
 	if (req.method() == "GET")
 	{
 		GET(req, server);
@@ -172,7 +186,7 @@ void Response::generateResponse(Request &req, const Server &server)
 	}
 	else
 	{
-		error(METHOD_NOT_ALLOWED);
+		error(NOT_IMPLEMENTED);
 	}
 }
 
