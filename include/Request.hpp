@@ -19,6 +19,7 @@ class Request
 		const std::string &host() const;
 		int status() const;
 		void setStatus(int status);
+		const std::string &contentType() const;
 
 	private:
 		enum State
@@ -47,6 +48,8 @@ class Request
 		bool _chunkSizeParsed;
 
 		int _status;
+
+		std::string _contentType;
 
 		bool parseStartLine(const std::string &line);
 		bool parseHeader(const std::string &line, size_t clientMaxBodySize);

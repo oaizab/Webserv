@@ -297,6 +297,12 @@ bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 			return false;
 		}
 	}
+	else if (tokens[0] == "content-type")
+	{
+		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
+		tokens[1] = Utils::Trim(tokens[1]);
+		_contentType = tokens[1];
+	}
 	else
 	{
 		if (tokens[0].find(' ') != std::string::npos or tokens[0].find('\t') != std::string::npos)
@@ -336,4 +342,9 @@ int Request::status() const
 void Request::setStatus(int status)
 {
 	_status = status;
+}
+
+const std::string &Request::contentType() const
+{
+	return _contentType;
 }
