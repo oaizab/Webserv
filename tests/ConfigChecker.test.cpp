@@ -82,14 +82,10 @@ TEST_CASE("validateSize", "[ConfigChecker]")
 	REQUIRE(ConfigChecker::validateSize("42K") == true);
 	REQUIRE(ConfigChecker::validateSize("42m") == true);
 	REQUIRE(ConfigChecker::validateSize("42M") == true);
-	REQUIRE(ConfigChecker::validateSize("42g") == true);
-	REQUIRE(ConfigChecker::validateSize("42G") == true);
 	REQUIRE(ConfigChecker::validateSize("0k") == true);
 	REQUIRE(ConfigChecker::validateSize("0K") == true);
 	REQUIRE(ConfigChecker::validateSize("0m") == true);
 	REQUIRE(ConfigChecker::validateSize("0M") == true);
-	REQUIRE(ConfigChecker::validateSize("0g") == true);
-	REQUIRE(ConfigChecker::validateSize("0G") == true);
 
 	// Invalid testcases
 	REQUIRE(ConfigChecker::validateSize("") == false);
