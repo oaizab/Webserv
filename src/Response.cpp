@@ -17,6 +17,12 @@
 // TODO: remove me
 #include <iostream>
 
+Response::Response()
+{
+	_status = 0;
+	_contentLength = 0;
+}
+
 std::string Response::getMessageByStatus(int status)
 {
 	switch (status)

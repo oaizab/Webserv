@@ -9,6 +9,8 @@
 class Response
 {
 	public:
+		Response();
+
 		void generateResponse(Request &req, const Server &server);
 		std::string toString() const;
 
