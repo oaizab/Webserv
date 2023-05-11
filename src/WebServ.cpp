@@ -228,7 +228,7 @@ Location WebServ::parseLocationBlock(std::ifstream &fin, const std::string &uri)
 		}
 		else if (tokens.front() == "cgi")
 		{
-
+			parseCgi(fin, location);
 		}
 	}
 	return location;

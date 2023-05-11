@@ -195,6 +195,21 @@ void Response::generateResponse(Request &req, const Server &server)
 	{
 		DELETE(req, server);
 	}
+	else if (req.method() == "POST")
+	{
+		const std::string extension = Utils::getExtension(req.uri());
+
+		if (location->cgi.find(extension) != location->cgi.end())
+		{
+			// TODO: CGI coming soon...
+			_status = OK;
+			_body = "<h1>CGI coming soon...</h1>";
+			_contentLength = _body.length();
+			_contentType = "text/html";
+		}
+		else
+			GET(req, server);
+	}
 	else
 	{
 		error(NOT_IMPLEMENTED);
