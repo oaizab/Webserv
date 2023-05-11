@@ -180,7 +180,12 @@ void Response::generateResponse(Request &req, const Server &server)
 		return;
 	}
 
-	// TODO(oaizab): check if there is a redirection
+	if (location->redirect)
+	{
+		_status = std::stoi(location->redirectCode);
+		_location = location->redirectUrl;
+		return;
+	}
 
 	if (req.method() == "GET")
 	{
@@ -208,6 +213,10 @@ std::string Response::toString() const
 		stream << "Content-Length: " << _contentLength << "\r\n";
 	}
 	stream << "Connection: close\r\n";
+	if (not _location.empty())
+	{
+		stream << "Location: " << _location << "\r\n";
+	}
 	stream << "\r\n";
 	if (_status != NO_CONTENT)
 		stream << _body;
