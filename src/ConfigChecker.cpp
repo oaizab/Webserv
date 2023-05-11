@@ -123,6 +123,10 @@ bool ConfigChecker::validateHostname(const std::string &hostname)
 	{
 		throw std::runtime_error("getaddrinfo() failed: " + std::string(strerror(errno)));
 	}
+	if (result != NULL)
+	{
+		freeaddrinfo(result);
+	}
 	return result != NULL;
 }
 

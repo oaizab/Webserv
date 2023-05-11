@@ -32,6 +32,7 @@ void Server::addListen(const std::string &host, const std::string &port, std::se
 		(reinterpret_cast<struct sockaddr_in *>(result->ai_addr))->sin_addr.s_addr,
 		(reinterpret_cast<struct sockaddr_in *>(result->ai_addr))->sin_port
 	);
+	freeaddrinfo(result);
 	if (listenParams.find(addr) != listenParams.end())
 	{
 		std::cerr << "Duplicate listen address: " << host << ':' << port << std::endl;

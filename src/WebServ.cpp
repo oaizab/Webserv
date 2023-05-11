@@ -306,6 +306,7 @@ void WebServ::openSocket(std::map<std::pair<uint32_t, uint16_t>, int> &socketsOp
 			socketsOpen[addr] = socketFd;
 			serversBySocket[socketFd].push_back(server);
 		}
+		freeaddrinfo(result);
 	}
 }
 
