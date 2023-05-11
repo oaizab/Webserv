@@ -49,6 +49,8 @@ std::string Response::getMessageByStatus(int status)
 			return "Not Found";
 		case 405:
 			return "Method Not Allowed";
+		case 409:
+			return "Conflict";
 		case 411:
 			return "Length Required";
 		case 413:
@@ -210,6 +212,10 @@ void Response::generateResponse(Request &req, const Server &server)
 		else
 			GET(req, server);
 	}
+	else if (req.method() == "PUT")
+	{
+		PUT(req, server);
+	}
 	else
 	{
 		error(NOT_IMPLEMENTED);
@@ -222,7 +228,7 @@ std::string Response::toString() const
 
 	stream << "HTTP/1.1 " << _status << " " << getMessageByStatus(_status) << "\r\n";
 	stream << "Server: webserv/1.0.0 (Unix) (MacOS/Intel)\r\n";
-	if (_status != NO_CONTENT)
+	if (_status != NO_CONTENT and _status != CREATED)
 	{
 		stream << "Content-Type: " << _contentType << "\r\n";
 		stream << "Content-Length: " << _contentLength << "\r\n";
@@ -233,7 +239,7 @@ std::string Response::toString() const
 		stream << "Location: " << _location << "\r\n";
 	}
 	stream << "\r\n";
-	if (_status != NO_CONTENT)
+	if (_status != NO_CONTENT and _status != CREATED)
 		stream << _body;
 	return stream.str();
 }
@@ -397,4 +403,41 @@ void Response::DELETE(Request &req, const Server &server)
 		return;
 	}
 	_status = NO_CONTENT;
+}
+
+void Response::PUT(Request &req, const Server &server)
+{
+	Location *location = matchUri(req.uri(), server);
+	if (location == NULL)
+	{
+		req.setStatus(NOT_FOUND);
+		generateErrorPage(req, server);
+		return;
+	}
+	std::string path = location->root + req.uri();
+
+	if (access(path.c_str(), F_OK) != -1)
+	{
+		_status = NO_CONTENT;
+	}
+	else
+	{
+		_status = CREATED;
+	}
+	if (Utils::isDirectory(path))
+	{
+		_status = CONFLICT;
+		req.setStatus(CONFLICT);
+		generateErrorPage(req, server);
+		return;
+	}
+	std::ofstream ofs(path.c_str());
+	if (not ofs.is_open())
+	{
+		req.setStatus(INTERNAL_SERVER_ERROR);
+		generateErrorPage(req, server);
+		return;
+	}
+	ofs << req.body();
+	ofs.close();
 }

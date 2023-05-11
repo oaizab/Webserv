@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <vector>
 
+#define MYBUFSIZ 1048576
+
 Http::Http()
 {
 	_isResponseGenerated = false;
@@ -18,10 +20,10 @@ Http::Http()
 void Http::readRequest(int socketfd)
 {
 	std::string request;
-	char buf[BUFSIZ + 1];
+	char buf[MYBUFSIZ + 1];
 	ssize_t bytes_read = 0;
 
-	bytes_read = recv(socketfd, buf, BUFSIZ, 0);
+	bytes_read = recv(socketfd, buf, MYBUFSIZ, 0);
 	if (bytes_read == -1)
 	{
 		_req.setStatus(INTERNAL_SERVER_ERROR);

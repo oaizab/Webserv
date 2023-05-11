@@ -212,6 +212,11 @@ bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
 			_status = BAD_REQUEST;
 			return false;
 		}
+		if (_body.length() == _contentLength)
+		{
+			_status = OK;
+			return false;
+		}
 	}
 	return true;
 }

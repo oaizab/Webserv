@@ -191,7 +191,7 @@ bool ConfigChecker::validateSize(const std::string &sizeStr)
 
 bool ConfigChecker::validateHttpMethod(const std::string &method)
 {
-	const std::string ALLOWED_METHODS[] = {"GET", "POST", "DELETE"};
+	const std::string ALLOWED_METHODS[] = {"GET", "POST", "DELETE", "PUT"};
 
 	return std::find(std::begin(ALLOWED_METHODS), std::end(ALLOWED_METHODS), method) != std::end(ALLOWED_METHODS);
 }
@@ -490,7 +490,7 @@ void ConfigChecker::validateAllowedMethodsDirective(const std::vector<std::strin
 	}
 	for (size_t i = 1; i < tokens.size(); i++)
 	{
-		if (tokens[i] != "GET" and tokens[i] != "POST" and tokens[i] != "DELETE")
+		if (tokens[i] != "GET" and tokens[i] != "POST" and tokens[i] != "DELETE" and tokens[i] != "PUT")
 		{
 			throw ConfigCheckerException("Invalid HTTP method: " + tokens[i]);
 		}

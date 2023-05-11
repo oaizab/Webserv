@@ -39,4 +39,5 @@ class Response
 
 		void GET(Request &req, const Server &server);
 		void DELETE(Request &req, const Server &server);
+		void PUT(Request &req, const Server &server);
 };
