@@ -146,7 +146,7 @@ clean:
 	rm -rf $(OBJ_DIR)
 	./$(TOOL_DIR)/clear-line.sh
 	echo "$(RED)Cleaning debug files...$(NC)"
-	rm -f *.dSYM
+	rm -rf *.dSYM
 	./$(TOOL_DIR)/clear-line.sh
 
 fclean: clean
