@@ -14,9 +14,6 @@
 #include <unistd.h>
 #include <vector>
 
-// TODO: remove me
-#include <iostream>
-
 Response::Response()
 {
 	_status = 0;
@@ -321,12 +318,25 @@ std::string Response::getFileContent(const std::string &path, Request &req, cons
 void Response::GET(Request &req, const Server &server)
 {
 	Location *location = matchUri(req.uri(), server);
+
 	if (location == NULL)
 	{
 		error(NOT_FOUND);
 		return;
 	}
 	std::string path = location->root + req.uri();
+
+	const std::string extension = Utils::getExtension(req.uri());
+
+	if (location->cgi.find(extension) != location->cgi.end())
+	{
+		// TODO: CGI coming soon...
+		_status = OK;
+		_body = "<h1>CGI coming soon...</h1>";
+		_contentLength = _body.length();
+		_contentType = "text/html";
+		return;
+	}
 
 	_status = OK;
 	if (Utils::isDirectory(path))
@@ -431,7 +441,7 @@ void Response::PUT(Request &req, const Server &server)
 		generateErrorPage(req, server);
 		return;
 	}
-	std::ofstream ofs(path.c_str());
+	std::ofstream ofs(path.c_str(), std::ios::binary);
 	if (not ofs.is_open())
 	{
 		req.setStatus(INTERNAL_SERVER_ERROR);

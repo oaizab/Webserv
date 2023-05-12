@@ -30,7 +30,7 @@ bool Request::readRequest(const std::string &request, int socketfd)
 	std::vector<std::string> lines = Utils::reqSplit(_request);
 	_request.clear();
 	if (lines.empty() and (not _isStartLineParsed or not _isHostParsed))
-		return false; // NOTE: Check if request is empty
+		return false;
 	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
 		if (it->back() != '\n' and _state != BODY)
