@@ -44,7 +44,6 @@ void Http::readRequest(int socketfd)
 		_isResponseGenerated = true;
 		return;
 	}
-	Server &server = matchHost(_req.host(), socketfd);
 	buf[bytes_read] = '\0';
 	request = buf;
 	if (not _req.readRequest(request, socketfd))
