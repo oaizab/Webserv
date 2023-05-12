@@ -46,10 +46,9 @@ class Request
 		size_t _chunkSize;
 		std::string _chunkContent;
 		bool _chunkSizeParsed;
-
 		int _status;
-
 		std::string _contentType;
+		size_t _clientMaxBodySize;
 
 		bool parseStartLine(const std::string &line);
 		bool parseHeader(const std::string &line, size_t clientMaxBodySize);

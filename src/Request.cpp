@@ -21,11 +21,11 @@ Request::Request()
 	_chunkSize = 0;
 	_chunkSizeParsed = false;
 	_status = 0;
+	_clientMaxBodySize = -1;
 }
 
 bool Request::readRequest(const std::string &request, int socketfd)
 {
-	size_t clientMaxBodySize = -1;
 	_request += request;
 	std::vector<std::string> lines = Utils::reqSplit(_request);
 	_request.clear();
@@ -52,13 +52,13 @@ bool Request::readRequest(const std::string &request, int socketfd)
 		}
 		else if (_state == HEADER)
 		{
-			if (not parseHeader(*it, clientMaxBodySize))
+			if (not parseHeader(*it, _clientMaxBodySize))
 				return false;
 			if (_state == BODY)
 			{
 				Server &server = Http::matchHost(_host, socketfd);
-				clientMaxBodySize = server.clientMaxBodySize;
-				if (_contentLength > clientMaxBodySize)
+				_clientMaxBodySize = server.clientMaxBodySize;
+				if (_contentLength > _clientMaxBodySize)
 				{
 					_status = PAYLOAD_TOO_LARGE;
 					return false;
@@ -67,7 +67,7 @@ bool Request::readRequest(const std::string &request, int socketfd)
 		}
 		else if (_state == BODY)
 		{
-			if (not parseBody(*it, clientMaxBodySize))
+			if (not parseBody(*it, _clientMaxBodySize))
 				return false;
 		}
 	}
