@@ -184,9 +184,13 @@ bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
 					_status = PAYLOAD_TOO_LARGE;
 					return false;
 				}
-				_chunkSize = 0;
 				_chunkSizeParsed = false;
 				_chunkContent.clear();
+			}
+			if (_chunkSize == 0)
+			{
+				_status = OK;
+				return false;
 			}
 		}
 	}
