@@ -1,10 +1,14 @@
 #include "Request.hpp"
+#include "Http.hpp"
+#include "Server.hpp"
 #include "Utils.hpp"
 #include "statusCodes.hpp"
 #include <algorithm>
 #include <cctype>
 #include <string>
 #include <sys/_types/_size_t.h>
+
+#include <iostream>
 
 Request::Request()
 {
@@ -19,8 +23,9 @@ Request::Request()
 	_status = 0;
 }
 
-bool Request::readRequest(const std::string &request, size_t clientMaxBodySize)
+bool Request::readRequest(const std::string &request, int socketfd)
 {
+	size_t clientMaxBodySize = -1;
 	_request += request;
 	std::vector<std::string> lines = Utils::reqSplit(_request);
 	_request.clear();
@@ -49,6 +54,16 @@ bool Request::readRequest(const std::string &request, size_t clientMaxBodySize)
 		{
 			if (not parseHeader(*it, clientMaxBodySize))
 				return false;
+			if (_state == BODY)
+			{
+				Server &server = Http::matchHost(_host, socketfd);
+				clientMaxBodySize = server.clientMaxBodySize;
+				if (_contentLength > clientMaxBodySize)
+				{
+					_status = PAYLOAD_TOO_LARGE;
+					return false;
+				}
+			}
 		}
 		else if (_state == BODY)
 		{
@@ -282,6 +297,11 @@ bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 	}
 	else if (tokens[0] == "content-length")
 	{
+		if (_chunked)
+		{
+			_status = BAD_REQUEST;
+			return false;
+		}
 		std::replace(tokens[1].begin(), tokens[1].end(), '\t', ' ');
 		std::string val = Utils::Trim(tokens[1]);
 		if (_isContentLengthParsed)

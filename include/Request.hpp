@@ -11,7 +11,7 @@ class Request
 		Request();
 		~Request() {};
 
-		bool readRequest(const std::string &request, size_t clientMaxBodySize);
+		bool readRequest(const std::string &request, int socketFd);
 
 		const std::string &method() const;
 		const std::string &uri() const;

@@ -12,6 +12,7 @@ class Http
 		Http();
 		void readRequest(int socketfd);
 		bool sendResponse(int socketfd);
+		static Server &matchHost(const std::string &host, int socketFd);
 
 	private:
 		Request _req;
@@ -20,5 +21,4 @@ class Http
 		size_t _bytesSent;
 		std::string _response;
 
-		Server &matchHost(const std::string &host, int socketFd);
 };

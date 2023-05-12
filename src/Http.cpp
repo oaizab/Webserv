@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <vector>
 
+#include <iostream>
+
 #define MYBUFSIZ 1048576
 
 Http::Http()
@@ -45,8 +47,9 @@ void Http::readRequest(int socketfd)
 	Server &server = matchHost(_req.host(), socketfd);
 	buf[bytes_read] = '\0';
 	request = buf;
-	if (not _req.readRequest(request, server.clientMaxBodySize))
+	if (not _req.readRequest(request, socketfd))
 	{
+		Server &server = matchHost(_req.host(), socketfd);
 		_res.generateResponse(_req, server);
 		_response = _res.toString();
 		_isResponseGenerated = true;
