@@ -111,7 +111,7 @@ $(OBJ_DIR):
 # ******************************** Test config *********************************
 
 # Please write all test suite names here
-TEST_NAMES := ConfigChecker Utils WebServ Request
+TEST_NAMES := ConfigChecker Utils WebServ
 
 # Please write all external dependencies here
 # Example: unitName_DEP := dependency1 dependency2 ...
@@ -119,7 +119,6 @@ TEST_NAMES := ConfigChecker Utils WebServ Request
 # Note: This can be omitted if the unit has no external dependencies
 ConfigChecker_DEP := Exception Utils
 WebServ_DEP := ConfigChecker Exception Utils Server Location Http Request Response MimeTypes
-Request_DEP := Utils
 
 # ******************************* Test Targets *********************************
 testall:
