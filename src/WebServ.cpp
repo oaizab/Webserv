@@ -209,13 +209,8 @@ Location WebServ::parseLocationBlock(std::ifstream &fin, const std::string &uri)
 		}
 		else if (tokens.front() == "upload")
 		{
-			if (tokens[1] == "off")
-				location.upload = false;
-			else
-			{
-				location.upload = true;
-				location.uploadPath = tokens[1];
-			}
+			location.upload = true;
+			location.uploadPath = tokens[1];
 		}
 		else if (tokens.front() == "redirect")
 		{

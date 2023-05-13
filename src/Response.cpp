@@ -425,6 +425,10 @@ void Response::PUT(Request &req, const Server &server)
 		return;
 	}
 	std::string path = location->root + req.uri();
+	if (location->upload)
+	{
+		path = location->uploadPath + req.uri();
+	}
 
 	if (access(path.c_str(), F_OK) != -1)
 	{
