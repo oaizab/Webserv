@@ -36,7 +36,8 @@ TEST_CASE("parseLocationBlock", "[WebServ]")
 	REQUIRE(location.index.find("index.html") != location.index.end());
 	REQUIRE(location.index.find("index.php") != location.index.end());
 	REQUIRE(location.autoIndex == true);
-	REQUIRE(location.upload == false);
+	REQUIRE(location.upload == true);
+	REQUIRE(location.uploadPath == "off");
 	REQUIRE(location.redirect == true);
 	REQUIRE(location.redirectCode == "307");
 	REQUIRE(location.redirectUrl == "/some/other/route");
