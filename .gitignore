@@ -21,3 +21,9 @@ webserv
 *.d
 
 Dockerfile
+
+upload/
+
+*.html
+
+html/
