@@ -452,6 +452,9 @@ void Response::PUT(Request &req, const Server &server)
 		generateErrorPage(req, server);
 		return;
 	}
-	ofs << req.body();
+	for (size_t i = 0; i < req.body().length(); ++i)
+	{
+		ofs << req.body()[i];
+	}
 	ofs.close();
 }

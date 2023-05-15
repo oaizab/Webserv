@@ -4,6 +4,7 @@
 #include <string>
 
 #include "statusCodes.hpp"
+#include "ByteSequence.hpp"
 
 class Request
 {
@@ -11,11 +12,11 @@ class Request
 		Request();
 		~Request() {};
 
-		bool readRequest(const std::string &request, int socketFd);
+		bool readRequest(const ByteSequence &request, int socketFd);
 
 		const std::string &method() const;
 		const std::string &uri() const;
-		const std::string &body() const;
+		const ByteSequence &body() const;
 		const std::string &host() const;
 		int status() const;
 		void setStatus(int status);
@@ -29,11 +30,11 @@ class Request
 			BODY
 		};
 
-		std::string _request;
+		ByteSequence _request;
 		std::string _method;
 		std::string _uri;
 		std::string _query;
-		std::string _body;
+		ByteSequence _body;
 		std::string _host;
 		State _state;
 		bool _isStartLineParsed;
@@ -44,7 +45,7 @@ class Request
 
 		std::string _chunkSizeStr;
 		size_t _chunkSize;
-		std::string _chunkContent;
+		ByteSequence _chunkContent;
 		bool _chunkSizeParsed;
 		int _status;
 		std::string _contentType;
@@ -52,7 +53,7 @@ class Request
 
 		bool parseStartLine(const std::string &line);
 		bool parseHeader(const std::string &line, size_t clientMaxBodySize);
-		bool parseBody(const std::string &line, size_t clientMaxBodySize);
+		bool parseBody(const ByteSequence &line, size_t clientMaxBodySize);
 		bool parseHost(const std::string &line);
 		bool parseUri(const std::string &line);
 		bool parseMethod(const std::string &line);

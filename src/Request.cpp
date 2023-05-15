@@ -24,18 +24,21 @@ Request::Request()
 	_clientMaxBodySize = -1;
 }
 
-bool Request::readRequest(const std::string &request, int socketfd)
+bool Request::readRequest(const ByteSequence &request, int socketfd)
 {
-	_request += request;
-	std::vector<std::string> lines = Utils::reqSplit(_request);
+	_request.append(request);
+
+	std::vector<ByteSequence> lines = _request.split('\n');
+
 	_request.clear();
 	if (lines.empty() and (not _isStartLineParsed or not _isHostParsed))
 		return false;
-	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); ++it)
+	for (std::vector<ByteSequence>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
 		if (it->back() != '\n' and _state != BODY)
 		{
-			_request = *it;
+			assert(_request.empty());
+			_request.append(*it);
 			break;
 		}
 		if (_state != BODY)
@@ -47,13 +50,17 @@ bool Request::readRequest(const std::string &request, int socketfd)
 		}
 		if (_state == START_LINE)
 		{
-			if (not parseStartLine(*it))
+			if (not parseStartLine(it->to_string()))
+			{
 				return false;
+			}
 		}
 		else if (_state == HEADER)
 		{
-			if (not parseHeader(*it, _clientMaxBodySize))
+			if (not parseHeader(it->to_string(), _clientMaxBodySize))
+			{
 				return false;
+			}
 			if (_state == BODY)
 			{
 				Server &server = Http::matchHost(_host, socketfd);
@@ -149,13 +156,13 @@ bool Request::parseVersion(const std::string &line)
 	return line == "HTTP/1.1";
 }
 
-bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
+bool Request::parseBody(const ByteSequence &line, size_t clientMaxBodySize)
 {
 	if (_chunked)
 	{
 		if (not _chunkSizeParsed)
 		{
-			_chunkSizeStr.append(line);
+			_chunkSizeStr.append(line.to_string());
 			if (Utils::endsWith(_chunkSizeStr, "\n"))
 			{
 				_chunkSizeStr.pop_back();
@@ -179,9 +186,9 @@ bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
 			uint8_t prefixLength = 0;
 
 			_chunkContent.append(line);
-			if (Utils::endsWith(_chunkContent, "\r\n"))
+			if (_chunkContent.endsWith("\r\n"))
 				prefixLength = 2;
-			else if (Utils::endsWith(_chunkContent, "\n"))
+			else if (_chunkContent.endsWith("\n"))
 				prefixLength = 1;
 			else
 				return true;
@@ -192,7 +199,7 @@ bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
 			}
 			if (_chunkContent.length() == _chunkSize + prefixLength)
 			{
-				_chunkContent.erase(_chunkContent.length() - prefixLength); // Remove CRLF or LF
+				_chunkContent = _chunkContent.subSequence(0, _chunkSize - prefixLength); // Remove CRLF or LF
 				_body.append(_chunkContent);
 				if (_body.length() > clientMaxBodySize)
 				{
@@ -213,18 +220,19 @@ bool Request::parseBody(const std::string &line, size_t clientMaxBodySize)
 	{
 		_body.append(line);
 
-		if (_body.length() == _contentLength + 1 and _body.back() == '\n')
-		{
-			_body.pop_back();
-			_status = OK;
-			return false;
-		}
-		if (_body.length() == _contentLength + 2 and Utils::endsWith(_body, "\r\n"))
-		{
-			_body.erase(_body.length() - 2);
-			_status = OK;
-			return false;
-		}
+		// if (_body.length() == _contentLength + 1 and _body.back() == '\n')
+		// {
+		// 	_body.pop_back();
+		// 	_status = OK;
+		// 	return false;
+		// }
+		// if (_body.length() == _contentLength + 2 and _body.endsWith("\r\n"))
+		// {
+		// 	_body.pop_back();
+		// 	_body.pop_back();
+		// 	_status = OK;
+		// 	return false;
+		// }
 
 		if (_body.length() > _contentLength)
 		{
@@ -314,7 +322,7 @@ bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 			_status = BAD_REQUEST;
 			return false;
 		}
-		_contentLength = std::stoi(val);
+		_contentLength = std::stoul(val);
 		if (_contentLength > clientMaxBodySize)
 		{
 			_status = PAYLOAD_TOO_LARGE;
@@ -367,7 +375,7 @@ const std::string &Request::uri() const
 	return _uri;
 }
 
-const std::string &Request::body() const
+const ByteSequence &Request::body() const
 {
 	return _body;
 }

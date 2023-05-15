@@ -21,7 +21,6 @@ Http::Http()
 
 void Http::readRequest(int socketfd)
 {
-	std::string request;
 	char buf[MYBUFSIZ + 1];
 	ssize_t bytes_read = 0;
 
@@ -44,9 +43,7 @@ void Http::readRequest(int socketfd)
 		_isResponseGenerated = true;
 		return;
 	}
-	buf[bytes_read] = '\0';
-	request = buf;
-	if (not _req.readRequest(request, socketfd))
+	if (not _req.readRequest(ByteSequence(buf, bytes_read), socketfd))
 	{
 		Server &server = matchHost(_req.host(), socketfd);
 		_res.generateResponse(_req, server);
