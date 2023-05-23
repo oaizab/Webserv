@@ -16,7 +16,6 @@
 #include "WebServ.hpp"
 #include <Cgi.hpp>
 
-
 Response::Response()
 {
 	_status = 0;
@@ -377,9 +376,32 @@ void Response::GET(Request &req, const Server &server, const client_info &client
 
 			if (access(indexPath.c_str(), F_OK) != -1)
 			{
-				_body = getFileContent(indexPath, req, server);
-				_contentType = MimeTypes::getMimeType( Utils::getExtension(indexPath) );
-				_contentLength = _body.length();
+				const std::string extension = Utils::getExtension(indexPath);
+				const std::map<std::string, std::string>::iterator it = location->cgi.find(extension);
+
+				if (it != location->cgi.end())
+				{
+					try {
+						Cgi	cgi(it->second);
+
+						cgi.run(req, server, client, indexPath);
+						_contentLength = cgi.getContentLength();
+						_contentType = cgi.getContentType();
+						_cookies = cgi.getCookies();
+						_status = cgi.getStatus();
+						_body = cgi.getBody();
+						return ;
+					} catch (int &status) {
+						_status = status;
+						return ;
+					}
+				}
+				else
+				{
+					_body = getFileContent(indexPath, req, server);
+					_contentType = MimeTypes::getMimeType( Utils::getExtension(indexPath) );
+					_contentLength = _body.length();
+				}
 				break;
 			}
 		}
