@@ -1,6 +1,7 @@
 #include "Utils.hpp"
 #include <sys/stat.h>
 
+
 std::string Utils::Trim(const std::string &str)
 {
 	std::string::size_type first = str.find_first_not_of(' ');
@@ -145,4 +146,20 @@ std::string Utils::getExtension(const std::string &path)
 		return "";
 	}
 	return path.substr(pos + 1);
+}
+
+std::string	Utils::getAbsolutePath(const std::string &filename)
+{
+	char *pathValue = getenv("PATH");
+	if (pathValue == nullptr)
+		return "";
+	std::vector<std::string> paths = Utils::Split(pathValue, ':');
+	std::string	absolutePath;
+	for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); it++)
+	{
+		absolutePath = *it + "/" + filename;
+		if (access(absolutePath.c_str(), X_OK) == 0)
+			return absolutePath; 
+	}
+	return "";
 }

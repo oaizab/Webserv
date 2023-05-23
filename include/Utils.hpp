@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 namespace Utils
 {
@@ -14,4 +15,5 @@ namespace Utils
 	bool isDirectory(const std::string &path);
 	bool isFile(const std::string &path);
 	std::string getExtension(const std::string &path);
+	std::string	getAbsolutePath(const std::string &filename);
 };
