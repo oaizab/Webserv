@@ -16,4 +16,6 @@ namespace Utils
 	bool isFile(const std::string &path);
 	std::string getExtension(const std::string &path);
 	std::string	getAbsolutePath(const std::string &filename);
+	std::string	getDirName(const std::string &path);
+	std::string	getFileName(const std::string &path);
 };
