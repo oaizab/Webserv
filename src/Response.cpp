@@ -215,6 +215,7 @@ void Response::generateResponse(Request &req, const Server &server, const client
 				_status = cgi.getStatus();
 				_contentLength = cgi.getContentLength();
 				_contentType = cgi.getContentType();
+				_cookies = cgi.getCookies();
 				_body = cgi.getBody();
 				return ;
 			} catch (int &status) {
@@ -250,6 +251,11 @@ std::string Response::toString() const
 	if (not _location.empty())
 	{
 		stream << "Location: " << _location << "\r\n";
+	}
+	if (not _cookies.empty())
+	{
+		for (std::vector<std::string>::const_iterator it = _cookies.begin(); it != _cookies.end(); it++)
+			stream << "Set-Cookie: " << *it << "\r\n";
 	}
 	stream << "\r\n";
 	if (_status != NO_CONTENT and _status != CREATED)
@@ -351,6 +357,7 @@ void Response::GET(Request &req, const Server &server, const client_info &client
 			cgi.run(req, server, client, path);
 			_contentLength = cgi.getContentLength();
 			_contentType = cgi.getContentType();
+			_cookies = cgi.getCookies();
 			_status = cgi.getStatus();
 			_body = cgi.getBody();
 			return ;

@@ -21,6 +21,7 @@ class Response
 		std::string _contentType;
 		size_t _contentLength;
 		std::string _location;
+		std::vector<std::string> _cookies;
 
 		void error(int status);
 		void error(int status, const Location &location, const Server &server);
