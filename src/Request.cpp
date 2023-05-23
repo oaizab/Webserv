@@ -43,9 +43,9 @@ bool Request::readRequest(const ByteSequence &request, int socketfd)
 		}
 		if (_state != BODY)
 		{
-			if (it->back() == '\n')
+			if (not it->empty() and it->back() == '\n')
 				it->pop_back();
-			if (it->back() == '\r')
+			if (not it->empty() and it->back() == '\r')
 				it->pop_back();
 		}
 		if (_state == START_LINE)
