@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <vector>
 #include "WebServ.hpp"
+#include <Cgi.hpp>
 
 
 Response::Response()
@@ -334,18 +335,22 @@ void Response::GET(Request &req, const Server &server, const client_info &client
 	std::string path = location->root + req.uri();
 
 	const std::string extension = Utils::getExtension(req.uri());
-
-	if (location->cgi.find(extension) != location->cgi.end())
+	std::map<std::string, std::string>::iterator	it =  location->cgi.find(extension);
+	if (it != location->cgi.end())
 	{
-		// TODO: CGI coming soon...
-		(void)client;
-		_status = OK;
-		_body = "<h1>CGI coming soon...</h1>";
-		_contentLength = _body.length();
-		_contentType = "text/html";
-		return;
+		try {
+			Cgi	cgi(it->second);
+			cgi.run(req, server, client, path);
+			_contentLength = cgi.getContentLength();
+			_contentType = cgi.getContentType();
+			_status = cgi.getStatus();
+			_body = cgi.getBody();
+			return ;
+		} catch (int &status) {
+			_status = status;
+			return ;
+		}
 	}
-
 	_status = OK;
 	if (Utils::isDirectory(path))
 	{
