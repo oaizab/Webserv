@@ -22,6 +22,7 @@ class Request
 		const std::string &host() const;
 		const std::string &port() const;
 		const std::string &query() const;
+		const std::string &cookies() const;
 		int status() const;
 		void setStatus(int status);
 		const std::string &contentType() const;
@@ -42,6 +43,7 @@ class Request
 		ByteSequence _body;
 		std::string _host;
 		std::string	_port;
+		std::string	_cookies;
 		State _state;
 		bool _isStartLineParsed;
 		bool _isHostParsed;

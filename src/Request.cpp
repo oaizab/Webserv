@@ -364,6 +364,8 @@ bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 		tokens[1] = Utils::Trim(tokens[1]);
 		_contentType = tokens[1];
 	}
+	else if (tokens[0] == "cookie")
+		_cookies = tokens[1];
 	else
 	{
 		if (tokens[0].find(' ') != std::string::npos or tokens[0].find('\t') != std::string::npos)
@@ -403,6 +405,11 @@ const std::string &Request::port() const
 const std::string &Request::query() const
 {
 	return _query;
+}
+
+const std::string &Request::cookies() const
+{
+	return _cookies;
 }
 
 int Request::status() const
