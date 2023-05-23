@@ -2,9 +2,11 @@
 
 #include <map>
 #include <string>
-
+#include <sys/_types/_size_t.h>
+#include <vector>
 #include "statusCodes.hpp"
 #include "ByteSequence.hpp"
+#define MAX_PORT 65535
 
 class Request
 {
@@ -18,9 +20,12 @@ class Request
 		const std::string &uri() const;
 		const ByteSequence &body() const;
 		const std::string &host() const;
+		const std::string &port() const;
+		const std::string &query() const;
 		int status() const;
 		void setStatus(int status);
 		const std::string &contentType() const;
+		size_t contentLength() const;
 
 	private:
 		enum State
@@ -36,6 +41,7 @@ class Request
 		std::string _query;
 		ByteSequence _body;
 		std::string _host;
+		std::string	_port;
 		State _state;
 		bool _isStartLineParsed;
 		bool _isHostParsed;

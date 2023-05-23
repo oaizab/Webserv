@@ -294,7 +294,17 @@ bool Request::parseHeader(const std::string &line, size_t clientMaxBodySize)
 		std::string val = Utils::Trim(tokens[1]);
 		size_t pos = val.find(':');
 		if (pos != std::string::npos)
+		{
+			_port = val.substr(pos + 1);
+			_port = Utils::Trim(_port);
+			if (_port.find_first_not_of("0123456789") != std::string::npos or _port.length() > 5
+				or std::stoul(_port) > MAX_PORT)
+			{
+				_status = BAD_REQUEST;
+				return false;
+			}
 			val = val.substr(0, pos);
+		}
 		if (_isHostParsed)
 		{
 			_status = BAD_REQUEST;
@@ -385,6 +395,16 @@ const std::string &Request::host() const
 	return _host;
 }
 
+const std::string &Request::port() const
+{
+	return _port;
+}
+
+const std::string &Request::query() const
+{
+	return _query;
+}
+
 int Request::status() const
 {
 	return _status;
@@ -398,4 +418,9 @@ void Request::setStatus(int status)
 const std::string &Request::contentType() const
 {
 	return _contentType;
+}
+
+size_t Request::contentLength() const
+{
+	return _contentLength;
 }
