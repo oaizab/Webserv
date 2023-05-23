@@ -13,6 +13,8 @@
 #include <sys/unistd.h>
 #include <unistd.h>
 #include <vector>
+#include "WebServ.hpp"
+
 
 Response::Response()
 {
@@ -158,7 +160,8 @@ void Response::generateErrorPage(const Request &req, const Server &server)
 		error(req.status(), *location, server);
 }
 
-void Response::generateResponse(Request &req, const Server &server)
+void Response::generateResponse(Request &req, const Server &server, const client_info &client)
+
 {
 	if (req.status() != OK)
 	{
@@ -188,7 +191,7 @@ void Response::generateResponse(Request &req, const Server &server)
 
 	if (req.method() == "GET")
 	{
-		GET(req, server);
+		GET(req, server, client);
 	}
 	else if (req.method() == "DELETE")
 	{
@@ -207,7 +210,7 @@ void Response::generateResponse(Request &req, const Server &server)
 			_contentType = "text/html";
 		}
 		else
-			GET(req, server);
+			GET(req, server, client);
 	}
 	else if (req.method() == "PUT")
 	{
@@ -315,7 +318,7 @@ std::string Response::getFileContent(const std::string &path, Request &req, cons
 	);
 }
 
-void Response::GET(Request &req, const Server &server)
+void Response::GET(Request &req, const Server &server, const client_info &client)
 {
 	Location *location = matchUri(req.uri(), server);
 
@@ -331,6 +334,7 @@ void Response::GET(Request &req, const Server &server)
 	if (location->cgi.find(extension) != location->cgi.end())
 	{
 		// TODO: CGI coming soon...
+		(void)client;
 		_status = OK;
 		_body = "<h1>CGI coming soon...</h1>";
 		_contentLength = _body.length();

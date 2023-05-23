@@ -19,7 +19,7 @@ Http::Http()
 	_bytesSent = 0;
 }
 
-void Http::readRequest(int socketfd)
+void Http::readRequest(int socketfd, const client_info &client)
 {
 	char buf[MYBUFSIZ + 1];
 	ssize_t bytes_read = 0;
@@ -29,7 +29,7 @@ void Http::readRequest(int socketfd)
 	{
 		_req.setStatus(INTERNAL_SERVER_ERROR);
 		Server &server = matchHost(_req.host(), socketfd);
-		_res.generateResponse(_req, server);
+		_res.generateResponse(_req, server, client);
 		_response = _res.toString();
 		_isResponseGenerated = true;
 		return;
@@ -38,7 +38,7 @@ void Http::readRequest(int socketfd)
 	{
 		_req.setStatus(BAD_REQUEST);
 		Server &server = matchHost(_req.host(), socketfd);
-		_res.generateResponse(_req, server);
+		_res.generateResponse(_req, server, client);
 		_response = _res.toString();
 		_isResponseGenerated = true;
 		return;
@@ -46,7 +46,7 @@ void Http::readRequest(int socketfd)
 	if (not _req.readRequest(ByteSequence(buf, bytes_read), socketfd))
 	{
 		Server &server = matchHost(_req.host(), socketfd);
-		_res.generateResponse(_req, server);
+		_res.generateResponse(_req, server, client);
 		_response = _res.toString();
 		_isResponseGenerated = true;
 	}

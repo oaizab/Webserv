@@ -332,6 +332,8 @@ void WebServ::run()
 {
 	std::set<int> listenfds;
 	std::map<int, Http *> httpByFd;
+	std::map<int, client_info>	clientByFd;
+
 	pollInit(listenfds);
 	while (true)
 	{
@@ -350,7 +352,10 @@ void WebServ::run()
 			{
 				if (listenfds.find(pollfds[i].fd) != listenfds.end())
 				{
-					int clientFd = accept(pollfds[i].fd, NULL, NULL);
+					client_info	client;
+					socklen_t	len;
+					
+					int clientFd = accept(pollfds[i].fd, reinterpret_cast<struct sockaddr *>(&client), &len);
 					if (clientFd == -1)
 					{
 						std::cerr << "accept error: " << strerror(errno) << std::endl;
@@ -363,6 +368,7 @@ void WebServ::run()
 						exit(1);
 					}
 
+					clientByFd[clientFd] = client;
 					serversBySocket[clientFd] = serversBySocket[pollfds[i].fd];
 					httpByFd[clientFd] = new Http;
 					pollfds.push_back((struct pollfd) {
@@ -373,7 +379,7 @@ void WebServ::run()
 				}
 				else
 				{
-					httpByFd[pollfds[i].fd]->readRequest(pollfds[i].fd);
+					httpByFd[pollfds[i].fd]->readRequest(pollfds[i].fd, clientByFd[pollfds[i].fd]);
 				}
 			}
 			if (pollfds[i].revents & POLLOUT)

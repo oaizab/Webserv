@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 
+typedef struct sockaddr_in client_info;
+
 class WebServ
 {
 	public:

@@ -5,14 +5,15 @@
 #include "Server.hpp"
 #include <string>
 #include <sys/_types/_size_t.h>
+#include "WebServ.hpp"
 
 class Response
 {
 	public:
 		Response();
 
-		void generateResponse(Request &req, const Server &server);
-		std::string toString() const;
+		void generateResponse(Request &req, const Server &server, const client_info &client);
+		std::string toString() const; 
 
 	private:
 		int _status;
@@ -37,7 +38,7 @@ class Response
 
 		std::string getFileContent(const std::string &path, Request &req, const Server &server);
 
-		void GET(Request &req, const Server &server);
+		void GET(Request &req, const Server &server, const client_info &client);
 		void DELETE(Request &req, const Server &server);
 		void PUT(Request &req, const Server &server);
 };
