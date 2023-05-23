@@ -205,14 +205,22 @@ void Response::generateResponse(Request &req, const Server &server, const client
 	else if (req.method() == "POST")
 	{
 		const std::string extension = Utils::getExtension(req.uri());
-
-		if (location->cgi.find(extension) != location->cgi.end())
+		std::map<std::string, std::string>::const_iterator	it = location->cgi.find(extension);
+		if (it != location->cgi.end())
 		{
-			// TODO: CGI coming soon...
-			_status = OK;
-			_body = "<h1>CGI coming soon...</h1>";
-			_contentLength = _body.length();
-			_contentType = "text/html";
+			try {
+				Cgi	cgi(it->second);
+				std::string	path = location->root + req.uri();
+				cgi.run(req, server, client, path);
+				_status = cgi.getStatus();
+				_contentLength = cgi.getContentLength();
+				_contentType = cgi.getContentType();
+				_body = cgi.getBody();
+				return ;
+			} catch (int &status) {
+				_status = status;
+				return ;
+			}
 		}
 		else
 			GET(req, server, client);
