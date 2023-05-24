@@ -409,6 +409,7 @@ void Response::GET(Request &req, const Server &server, const client_info &client
 					_body = getFileContent(indexPath, req, server);
 					_contentType = MimeTypes::getMimeType( Utils::getExtension(indexPath) );
 					_contentLength = _body.length();
+					return;
 				}
 				break;
 			}
