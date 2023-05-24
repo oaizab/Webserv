@@ -7,17 +7,21 @@
 
 int main(int argc, char **argv)
 {
-	(void) argc;
-	(void) argv;
 	try
 	{
-		// if (argc == 2 and std::string(argv[1]) == "-t")
-		// {
-		// 	ConfigChecker configChecker;
-
-		// 	std::cout << "The configuration file syntax is OK" << std::endl;
-		// }
-		WebServ::startServers();
+		if (argc > 2)
+		{
+			std::cerr << "Usage: " << argv[0] << " [config_file]" << std::endl;
+			return 1;
+		}
+		if (argc == 2)
+		{
+			WebServ::startServers(argv[1]);
+		}
+		else
+		{
+			WebServ::startServers();
+		}
 	}
 	catch (const std::exception &ex)
 	{

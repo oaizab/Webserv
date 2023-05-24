@@ -242,7 +242,6 @@ std::string Response::toString() const
 {
 	std::stringstream stream;
 
-	std::cout << "\rtoString - status = " << _status << std::endl;
 	stream << "HTTP/1.1 " << _status << " " << getMessageByStatus(_status) << "\r\n";
 	stream << "Server: webserv/1.0.0 (Unix) (MacOS/Intel)\r\n";
 	if (_status != NO_CONTENT and _status != CREATED)
