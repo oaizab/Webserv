@@ -48,6 +48,7 @@ class Cgi {
         size_t						_content_length;
         std::string					_body;
         short						_status;
+		std::string					_location;
 		
 
         // cgi attribute
@@ -82,6 +83,7 @@ class Cgi {
 		size_t						getContentLength() const;
 		std::string					getBody() const;
 		short						getStatus() const;
+		std::string					getLocation() const;
 };
 
 #endif

@@ -182,6 +182,8 @@ void	Cgi::parse_headers(std::string &response, bool &start_body) throw()
 				this->_content_length = std::stoul(tokens[1]);
 			if (tokens[0] == "set-cookie")
 				this->_cookies.push_back(tokens[1]);
+			if (tokens[0] == "location")
+				this->_location = Utils::Trim(tokens[1]);
 		}
 		response.erase(0, pos + 2);
 		pos = response.find("\r\n");
@@ -288,4 +290,9 @@ std::string	Cgi::getBody() const
 short	Cgi::getStatus() const
 {
 	return _status;	
+}
+
+std::string Cgi::getLocation() const
+{
+	return _location;
 }

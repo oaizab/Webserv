@@ -359,6 +359,7 @@ void Response::GET(Request &req, const Server &server, const client_info &client
 			_cookies = cgi.getCookies();
 			_status = cgi.getStatus();
 			_body = cgi.getBody();
+			_location = cgi.getLocation();
 			return ;
 		} catch (int &status) {
 			_status = status;
