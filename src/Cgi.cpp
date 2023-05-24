@@ -60,6 +60,8 @@ void    Cgi::run(const Request& request, const Server& server, const client_info
 {
     pid_t	pid;
 
+	if (access(path.c_str(), F_OK) == -1)
+		throw NOT_FOUND;
     if (not this->check_script_permission(path))
         throw FORBIDDEN;
 	

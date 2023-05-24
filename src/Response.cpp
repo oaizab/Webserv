@@ -15,6 +15,7 @@
 #include <vector>
 #include "WebServ.hpp"
 #include <Cgi.hpp>
+#include <iostream>
 
 Response::Response()
 {
@@ -219,6 +220,8 @@ void Response::generateResponse(Request &req, const Server &server, const client
 				return ;
 			} catch (int &status) {
 				_status = status;
+				req.setStatus(status);
+				generateErrorPage(req, server);
 				return ;
 			}
 		}
@@ -239,6 +242,7 @@ std::string Response::toString() const
 {
 	std::stringstream stream;
 
+	std::cout << "\rtoString - status = " << _status << std::endl;
 	stream << "HTTP/1.1 " << _status << " " << getMessageByStatus(_status) << "\r\n";
 	stream << "Server: webserv/1.0.0 (Unix) (MacOS/Intel)\r\n";
 	if (_status != NO_CONTENT and _status != CREATED)
@@ -363,6 +367,8 @@ void Response::GET(Request &req, const Server &server, const client_info &client
 			return ;
 		} catch (int &status) {
 			_status = status;
+			req.setStatus(status);
+			generateErrorPage(req, server);
 			return ;
 		}
 	}
@@ -394,6 +400,8 @@ void Response::GET(Request &req, const Server &server, const client_info &client
 						return ;
 					} catch (int &status) {
 						_status = status;
+						req.setStatus(status);
+						generateErrorPage(req, server);
 						return ;
 					}
 				}
