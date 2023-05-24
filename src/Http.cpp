@@ -36,11 +36,6 @@ void Http::readRequest(int socketfd, const client_info &client)
 	}
 	if (bytes_read == 0)
 	{
-		_req.setStatus(BAD_REQUEST);
-		Server &server = matchHost(_req.host(), socketfd);
-		_res.generateResponse(_req, server, client);
-		_response = _res.toString();
-		_isResponseGenerated = true;
 		return;
 	}
 	if (not _req.readRequest(ByteSequence(buf, bytes_read), socketfd))
