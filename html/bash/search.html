@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        .form-container {
+            text-align: center;
+            width: 300px;
+        }
+
+        .form-field {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-submit {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h1 class="form-header">Student Finder</h1>
+        <form action="finder.sh" method="POST">
+            <input name="Login" type="text" class="form-field" placeholder="Enter student name">
+            <div class="form-submit">
+                <input type="submit" value="find">
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
