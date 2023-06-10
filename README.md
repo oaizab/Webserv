@@ -1,33 +1,61 @@
-<h1 align="center">
-  <br>
-  <a href="#"><img src="https://www.pikpng.com/pngl/b/469-4698781_learning-c-programming-4-c-logo-svg-clipart.png" alt="Markdownify" width="200"></a>
-  <br>
-  42-cpp-project-template
-  <br>
-</h1>
+![Webserv Banner](doc/img/webserv-banner.png)
 
-<h4 align="center">A 42 C++ Project Template with Unit Testing</h4>
+Webserv is a lightweight and efficient web server written in C++. It provides a
+robust foundation for hosting web applications and serving static content. With
+its simplicity and performance, Webserv is suitable for a wide range of use
+cases.
 
-<br>
+## Features
 
-## Key Features
+- `HTTP/1.1 Support`: Webserv supports the HTTP/1.1 protocol, allowing seamless communication with clients.
+- `Static Content`: Serve static files such as HTML, CSS, JavaScript, images, and more, making it easy to host static websites.
+- `Dynamic Content`: Handle dynamic content by supporting common scripting languages such as PHP, Python, and Perl.
+- `Virtual Hosting`: Configure and host multiple websites using virtual hosting, allowing you to serve multiple domains from a single server.
+- `Request Routing`: Define custom request routes to handle different URLs and paths based on your application's specific needs.
 
-* CI/CD friendly
-  - Has a GitHub Action to test code on push
-* Well written Makefile
-  - Built with the usual rules (all, clean, fclean & re)
-  - Added rules for testing (test & testall). Unit testing is done using [Catch](https://github.com/catchorg/Catch2/tree/Catch1.x) 
-  - No relinking
-  - Automatically generated header dependencies
-  - Make argument to make your life much simpler ([Read the docs](https://github.com/Archer-01/42-cpp-project-template/blob/main/Makefile))
-* [Clangd](https://clangd.llvm.org/) support
-  - This template is meant to be used with [clangd](https://clangd.llvm.org/)
-* [Clang format](https://clang.llvm.org/docs/ClangFormat.html) support
+For more information on Webserv's features, see the [Webserv Wiki](https://github.com/oaizab/Webserv/wiki).
 
-> **Note**
-> This template was written for MacOS only
+## Getting Started
 
----
+To get started with Webserv, follow these steps:
 
-> GitHub [@Archer-01](https://github.com/Archer-01) &nbsp;&middot;&nbsp;
-> Linkedin [@Hamza Haddani](https://www.linkedin.com/in/hamza-haddani/)
+1. Clone the Repository: Clone the Webserv repository from GitHub:
+
+```bash
+git clone https://github.com/oaizab/Webserv.git
+```
+
+2. Build the Server: Navigate to the project directory and build the server in release mode using make:
+
+```bash
+cd Webserv
+make RELEASE=1
+```
+
+3. Configuration: Customize the server's configuration by modifying the webserv.conf or creating a brand new config file. Configure the server's ports, virtual hosts, and any other settings according to your requirements. For more information on configuring the server, see the [Configuration File Wiki](https://github.com/oaizab/Webserv/wiki/Configuration-File)
+
+4. Start the Server: Launch the server by running the built executable, you can use the default config file (config/webserv.conf) or specify a custom config file:
+
+```bash
+./webserv # Uses the default config file (config/webserv.conf)
+./webserv /path/to/your/config-file.conf # Uses a custom config file
+```
+
+5. Access the Server: You can now access the server by opening a web browser and navigating to `http://localhost:port`, where port is the configured port number in the configuration file (Assuming the web server is configured to listen on localhost).
+
+Here's a quick example of a simple configuration file that serves static content:
+
+```conf
+server {
+	listen 8080;
+	server_name localhost;
+
+	location / {
+		root /path/to/your/static/files;
+	}
+}
+```
+
+## Contact
+
+If you have any questions, suggestions, or feedback, feel free to reach out to the project team.
