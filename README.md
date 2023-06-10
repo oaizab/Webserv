@@ -1,9 +1,8 @@
 ![Webserv Banner](doc/img/webserv-banner.png)
 
-Webserv is a lightweight and efficient web server written in C++. It provides a
-robust foundation for hosting web applications and serving static content. With
-its simplicity and performance, Webserv is suitable for a wide range of use
-cases.
+Webserv is a small and effective web server created in C++. It gives a strong
+base for hosting web applications and delivering fixed content. Because it is
+easy to use and works well, Webserv can be used for many different purposes.
 
 ## Features
 
