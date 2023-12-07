@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <cstring>
 #include <iostream>
 #include <netdb.h>
 

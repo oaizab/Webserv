@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <netdb.h>

@@ -4,7 +4,6 @@
 #include "Request.hpp"
 #include "Server.hpp"
 #include <string>
-#include <sys/_types/_size_t.h>
 #include "WebServ.hpp"
 
 class Response

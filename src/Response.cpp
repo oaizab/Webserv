@@ -1,11 +1,15 @@
-#include "Response.hpp"
 #include "MimeTypes.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "Server.hpp"
 #include "Utils.hpp"
+#include "WebServ.hpp"
 #include "statusCodes.hpp"
+#include <Cgi.hpp>
+#include <cassert>
 #include <dirent.h>
 #include <fstream>
+#include <iostream>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -13,9 +17,6 @@
 #include <sys/unistd.h>
 #include <unistd.h>
 #include <vector>
-#include "WebServ.hpp"
-#include <Cgi.hpp>
-#include <iostream>
 
 Response::Response()
 {

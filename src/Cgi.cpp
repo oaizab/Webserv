@@ -17,8 +17,6 @@
 #include "WebServ.hpp"
 #include "statusCodes.hpp"
 #include <Cgi.hpp>
-#include <__nullptr>
-#include <_ctype.h>
 #include <algorithm>
 #include <csignal>
 #include <cstddef>
@@ -26,11 +24,6 @@
 #include <ctime>
 #include <string>
 #include <strings.h>
-#include <sys/_types/_pid_t.h>
-#include <sys/_types/_size_t.h>
-#include <sys/_types/_ssize_t.h>
-#include <sys/_types/_time_t.h>
-#include <sys/_types/_timeval.h>
 #include <sys/errno.h>
 #include <sys/fcntl.h>
 #include <sys/select.h>
@@ -41,7 +34,7 @@
 #include <arpa/inet.h>
 #include <vector>
 
-Cgi::Cgi(const std::string &cgi)  throw(int) :  _content_length(std::string::npos), _status(200), _cgi(cgi)
+Cgi::Cgi(const std::string &cgi) :  _content_length(std::string::npos), _status(200), _cgi(cgi)
 {
 	
 	if (this->_cgi.front() == '/' and access(this->_cgi.c_str(), X_OK) == -1)
@@ -56,13 +49,13 @@ Cgi::Cgi(const std::string &cgi)  throw(int) :  _content_length(std::string::npo
 
 Cgi::~Cgi() {}
 
-void    Cgi::run(const Request& request, const Server& server, const client_info& client, const std::string& path) throw(int)
+void    Cgi::run(const Request& request, const Server& server, const client_info& client, const std::string& path)
 {
     pid_t	pid;
 
 	if (access(path.c_str(), F_OK) == -1)
 		throw NOT_FOUND;
-    if (not this->check_script_permission(path))
+	if (not this->check_script_permission(path))
         throw FORBIDDEN;
 	
 	this->create_communication_channel(request.method());
@@ -76,7 +69,7 @@ void    Cgi::run(const Request& request, const Server& server, const client_info
 	
 }
 
-void	Cgi::create_communication_channel(const std::string &method) throw(int)
+void	Cgi::create_communication_channel(const std::string &method)
 {
 	this->_fds.assign(4, 0);
 	if (pipe(&this->_fds[0]) == -1)
@@ -88,7 +81,7 @@ void	Cgi::create_communication_channel(const std::string &method) throw(int)
 	}
 }
 
-void    Cgi::parent_work(const Request& request, pid_t pid) throw(int)
+void    Cgi::parent_work(const Request& request, pid_t pid)
 {
 	try {
 		if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
@@ -105,7 +98,7 @@ void    Cgi::parent_work(const Request& request, pid_t pid) throw(int)
 		throw INTERNAL_SERVER_ERROR;
 }
 
-void    Cgi::send_request(const Request& request) throw(int)
+void    Cgi::send_request(const Request& request)
 {
 	size_t      pos = 0;
     ssize_t     nbytes;
@@ -131,7 +124,7 @@ void    Cgi::send_request(const Request& request) throw(int)
 		throw INTERNAL_SERVER_ERROR;
 }
 
-void    Cgi::receive_response() throw(int)
+void    Cgi::receive_response()
 {
 	char		buffer[BUFFER_SIZE];
 	std::string	resp;
@@ -164,7 +157,7 @@ void    Cgi::receive_response() throw(int)
 	this->_content_length = _body.length();
 }
 
-void	Cgi::parse_headers(std::string &response, bool &start_body) throw()
+void	Cgi::parse_headers(std::string &response, bool &start_body)
 {
 	size_t						pos;
 	std::vector<std::string>	tokens;
@@ -198,7 +191,7 @@ void	Cgi::parse_headers(std::string &response, bool &start_body) throw()
 	}
 }
 
-void	Cgi::wait_for_child(pid_t pid) throw(int)
+void	Cgi::wait_for_child(pid_t pid)
 {
 	time_t start = time(nullptr);
 	int	status = 0;
@@ -217,7 +210,7 @@ void	Cgi::wait_for_child(pid_t pid) throw(int)
 	throw GATEWAY_TIMEOUT;
 }
 
-void    Cgi::child_work(const Request& request, const Server& server, const client_info& client, const std::string& path) throw()
+void    Cgi::child_work(const Request& request, const Server& server, const client_info& client, const std::string& path)
 {
 	if (dup2(this->_fds.at(CGI_WRITE_END), 1) == -1 or close(this->_fds.at(CGI_WRITE_END)))
 		exit(EXIT_FAILURE);
@@ -244,7 +237,7 @@ void    Cgi::child_work(const Request& request, const Server& server, const clie
 		exit(EXIT_FAILURE);
 }
 
-void	Cgi::setup_environment(const Request& request, const Server& server, const client_info& client, const std::string& path) throw()
+void	Cgi::setup_environment(const Request& request, const Server& server, const client_info& client, const std::string& path)
 {
 	this->_env.push_back("SERVER_SOFTWARE=WebServ/1.0.0");
 	this->_env.push_back("SERVER_PROTOCOL=HTTP/1.1");
@@ -263,7 +256,7 @@ void	Cgi::setup_environment(const Request& request, const Server& server, const 
 	
 }
 
-bool    Cgi::check_script_permission(const std::string& path) throw()
+bool    Cgi::check_script_permission(const std::string& path)
 {
     return (access(path.c_str(), R_OK) != -1);
 }

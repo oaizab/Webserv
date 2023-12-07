@@ -4,9 +4,9 @@
 
 #include <map>
 #include <string>
-#include <sys/_types/_size_t.h>
 #include <utility>
 #include <vector>
+#include <cstdint>
 
 class Server
 {

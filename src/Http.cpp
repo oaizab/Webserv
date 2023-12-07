@@ -4,8 +4,6 @@
 #include "statusCodes.hpp"
 #include <cstdio>
 #include <string>
-#include <sys/_types/_size_t.h>
-#include <sys/_types/_ssize_t.h>
 #include <sys/socket.h>
 #include <vector>
 

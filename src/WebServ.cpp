@@ -4,7 +4,6 @@
 #include "Http.hpp"
 #include "Location.hpp"
 #include "Utils.hpp"
-#include <_types/_uint16_t.h>
 #include <algorithm>
 #include <cstdio>
 #include <fcntl.h>
@@ -13,8 +12,6 @@
 #include <netdb.h>
 #include <set>
 #include <string>
-#include <sys/_types/_size_t.h>
-#include <sys/_types/_ssize_t.h>
 #include <sys/fcntl.h>
 #include <sys/poll.h>
 #include <sys/socket.h>

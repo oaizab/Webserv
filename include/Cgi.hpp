@@ -21,9 +21,6 @@
 #include <exception>
 #include <netinet/in.h>
 #include <string>
-#include <sys/_types/_pid_t.h>
-#include <sys/_types/_size_t.h>
-#include <sys/_types/_timeval.h>
 #include <unistd.h>
 #include <vector>
 #include <map>
@@ -61,21 +58,21 @@ class Cgi {
 		
 	public:
 		// parameter constructor
-		explicit		Cgi(const std::string &cgi) throw(int);
+		explicit		Cgi(const std::string &cgi);
 		// destructor
 						~Cgi();
 		// setup the environment to cgi and webserver processes
-		void			run(const Request& request, const Server& server, const client_info& client, const std::string& path) throw(int);
+		void			run(const Request& request, const Server& server, const client_info& client, const std::string& path);
 		// create pipes to exchange data
-		void			create_communication_channel(const std::string &method) throw(int);
-		void			parent_work(const Request& request, pid_t pid) throw(int);
-		void			send_request(const Request& request) throw(int);
-		void			receive_response() throw(int);
-		void			parse_headers(std::string &response, bool &start_body) throw();
-		void			wait_for_child(pid_t pid) throw(int);
-		void			child_work(const Request& request, const Server& server, const client_info& client, const std::string& path) throw();
-		void			setup_environment(const Request& request, const Server& server, const client_info& client, const std::string& path) throw();
-		static bool		check_script_permission(const std::string& path) throw();
+		void			create_communication_channel(const std::string &method);
+		void			parent_work(const Request& request, pid_t pid);
+		void			send_request(const Request& request);
+		void			receive_response();
+		void			parse_headers(std::string &response, bool &start_body);
+		void			wait_for_child(pid_t pid);
+		void			child_work(const Request& request, const Server& server, const client_info& client, const std::string& path);
+		void			setup_environment(const Request& request, const Server& server, const client_info& client, const std::string& path);
+		static bool		check_script_permission(const std::string& path);
 
 		// getters for the response attributes
 		std::vector<std::string>	getCookies() const;

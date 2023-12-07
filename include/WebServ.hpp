@@ -4,8 +4,6 @@
 #include "Server.hpp"
 #include <poll.h>
 #include <string>
-#include <sys/_types/_size_t.h>
-#include <sys/_types/_u_int32_t.h>
 #include <sys/poll.h>
 #include <utility>
 #include <vector>
