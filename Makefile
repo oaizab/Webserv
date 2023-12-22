@@ -67,7 +67,6 @@ TOOL_DIR := tools
 
 # ************************************ Files ***********************************
 NAME := webserv
-# TODO: Make sure to change this before pushing to the intra
 SRCS := $(shell find $(SRC_DIR) -type f -name *.cpp -print)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
@@ -77,7 +76,7 @@ CXXFLAGS := -Wall -Wextra -Werror -MMD -I $(INC_DIR)
 
 ifeq ($(shell uname), Darwin)
 	CXXFLAGS += -std=c++98
-else
+else # Linux
 	CXXFLAGS += -std=c++11
 endif
 
